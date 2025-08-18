@@ -4,7 +4,7 @@ const path = require('path');
 require('dotenv').config();
 
 const app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 10000;
 
 // Import route modules
 const authRoutes = require('./routes/auth');
@@ -15,38 +15,53 @@ const marketplaceRoutes = require('./routes/marketplace');
 const { initDatabase, getDb } = require('./config/database');
 initDatabase();
 
+// CORS configuration for production
+const corsOptions = {
+    origin: [
+        'https://YOUR_USERNAME.github.io', // Replace YOUR_USERNAME with your GitHub username
+        'http://localhost:3000', // For local testing if needed
+        'http://127.0.0.1:5500', // For VS Code Live Server if needed
+    ],
+    credentials: true,
+    optionsSuccessStatus: 200
+};
+
 // Middleware
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(express.json());
-app.use(express.static(path.join(__dirname, '../frontend')));
+
+// Health check endpoint for Render
+app.get('/health', (req, res) => {
+    res.json({ status: 'healthy', timestamp: new Date().toISOString() });
+});
 
 // API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/items', itemRoutes);
 app.use('/api/marketplace', marketplaceRoutes);
 
-// Catch-all route for SPA - Fixed for Express 5
-// This serves index.html for any non-API routes
-app.get('/*', (req, res) => {
-    // Only serve index.html if the request is not for an API route
-    if (!req.path.startsWith('/api')) {
-        res.sendFile(path.join(__dirname, '../frontend/index.html'));
-    } else {
-        res.status(404).json({ error: 'API endpoint not found' });
-    }
+// 404 handler for undefined routes
+app.use((req, res) => {
+    res.status(404).json({ error: 'Endpoint not found' });
+});
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+    console.error('Server error:', err);
+    res.status(500).json({ 
+        error: 'Internal server error',
+        message: process.env.NODE_ENV === 'development' ? err.message : undefined
+    });
 });
 
 // Start server
-app.listen(port, () => {
-    console.log(`🚀 Server running on http://localhost:${port}`);
+app.listen(port, '0.0.0.0', () => {
+    console.log(`🚀 Server running on port ${port}`);
     
     const db = getDb();
-    if (!db.hasSupabase) {
-        console.log('\n📝 To set up Supabase:');
-        console.log('1. Create a .env file in the backend folder');
-        console.log('2. Add your Supabase URL and anon key:');
-        console.log('   SUPABASE_URL=https://your-project.supabase.co');
-        console.log('   SUPABASE_ANON_KEY=your-anon-key');
-        console.log('\n🔧 For now, running with in-memory storage (data will be lost on restart)');
+    if (db.hasSupabase) {
+        console.log('✅ Connected to Supabase');
+    } else {
+        console.log('⚠️ Running without database connection');
     }
 });
