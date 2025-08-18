@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhancive Tracker</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Main Application (No login needed for GitHub Pages version) -->
+    <div id="mainApp">
+        <!-- Header -->
+        <div class="header">
+            <h1>Enhancive Tracker</h1>
+            <div class="header-actions">
+                <button onclick="DataManager.exportData()" title="Export Data">💾 Export</button>
+                <button onclick="DataManager.importData()" title="Import Data">📂 Import</button>
+                <input type="file" id="importFile" accept=".json" style="display: none;" onchange="DataManager.handleImport(event)">
+            </div>
+        </div>
+        
+        <!-- Navigation Tabs -->
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="UI.switchTab('items')">📦 Items</button>
+            <button class="nav-tab" onclick="UI.switchTab('equipment')">⚔️ Equipment</button>
+            <button class="nav-tab" onclick="UI.switchTab('totals')">📊 Totals</button>
+            <button class="nav-tab" onclick="UI.switchTab('analysis')">📈 Analysis</button>
+            <button class="nav-tab" onclick="UI.switchTab('settings')">⚙️ Settings</button>
+        </div>
+        
+        <!-- Statistics Bar -->
+        <div class="stats-bar">
+            <div class="stat-card">
+                <div class="value" id="totalItems">0</div>
+                <div class="label">Total Items</div>
+            </div>
+            <div class="stat-card">
+                <div class="value" id="totalEquipped">0</div>
+                <div class="label">Equipped</div>
+            </div>
+            <div class="stat-card">
+                <div class="value" id="slotsFiltered">0</div>
+                <div class="label">Slots Filled</div>
+            </div>
+            <div class="stat-card">
+                <div class="value" id="activeEnhancives">0</div>
+                <div class="label">Active Enhancives</div>
+            </div>
+            <div class="stat-card">
+                <div class="value" id="cappedStats">0</div>
+                <div class="label">Capped Stats</div>
+            </div>
+        </div>
+
+        <!-- Tab Content Containers -->
+        <div id="itemsTab" class="tab-content active">
+            <!-- Items content will be loaded here -->
+        </div>
+
+        <div id="equipmentTab" class="tab-content">
+            <!-- Equipment content will be loaded here -->
+        </div>
+
+        <div id="totalsTab" class="tab-content">
+            <!-- Totals content will be loaded here -->
+        </div>
+
+        <div id="analysisTab" class="tab-content">
+            <!-- Analysis content will be loaded here -->
+        </div>
+
+        <div id="settingsTab" class="tab-content">
+            <!-- Settings content will be loaded here -->
+        </div>
+    </div>
+
+    <!-- Notification container -->
+    <div id="notifications"></div>
+
+    <!-- Scripts -->
+    <script src="js/config.js"></script>
+    <script src="js/data.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/items.js"></script>
+    <script src="js/equipment.js"></script>
+    <script src="js/totals.js"></script>
+    <script src="js/analysis.js"></script>
+    <script src="js/settings.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
