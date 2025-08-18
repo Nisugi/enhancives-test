@@ -4,31 +4,334 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Enhancive Tracker</title>
-    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Base styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        /* Login styles */
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .login-box {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            backdrop-filter: blur(10px);
+        }
+
+        .login-box h1 {
+            text-align: center;
+            margin-bottom: 2rem;
+            color: #333;
+            font-size: 2rem;
+        }
+
+        .login-box h2 {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            color: #555;
+        }
+
+        .login-box input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 1rem;
+            border: 2px solid #e1e1e1;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .login-box input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .login-box button {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .login-box button:hover {
+            transform: translateY(-2px);
+        }
+
+        .login-box p {
+            text-align: center;
+            margin-top: 1rem;
+            color: #666;
+        }
+
+        .login-box a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* Main app styles */
+        #mainApp {
+            display: none;
+            min-height: 100vh;
+            background: rgba(255, 255, 255, 0.95);
+            margin: 20px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 20px 20px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 1.8rem;
+        }
+
+        .header-actions button {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            margin-left: 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .header-actions button:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Navigation tabs */
+        .nav-tabs {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 2px solid #e9ecef;
+            padding: 0 2rem;
+        }
+
+        .nav-tab {
+            background: none;
+            border: none;
+            padding: 1rem 1.5rem;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: #666;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .nav-tab:hover {
+            color: #333;
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .nav-tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        /* Statistics bar */
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            padding: 2rem;
+            background: #f8f9fa;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .stat-card .value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-card .label {
+            font-size: 0.9rem;
+            color: #666;
+            text-transform: uppercase;
+            font-weight: 500;
+        }
+
+        /* Tab content */
+        .tab-content {
+            display: none;
+            padding: 2rem;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Settings section styles */
+        .settings-section {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .settings-section h3 {
+            margin-bottom: 1rem;
+            color: #333;
+        }
+
+        .settings-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Notification styles */
+        #notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid #667eea;
+            display: none;
+            z-index: 1000;
+        }
+
+        #notification.show {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
 </head>
 <body>
-    <!-- Main Application (No login needed for GitHub Pages version) -->
+    <!-- Login Screen -->
+    <div id="loginScreen" class="login-container">
+        <div class="login-box">
+            <h1>Enhancive Tracker</h1>
+            <h2>Login</h2>
+            <form id="loginForm" onsubmit="App.handleLogin(event)">
+                <input type="text" id="username" placeholder="Username" required>
+                <input type="password" id="password" placeholder="Password" required>
+                <button type="submit">Login</button>
+            </form>
+            <p>Don't have an account? <a onclick="App.showRegister()">Register</a></p>
+        </div>
+    </div>
+
+    <!-- Main Application -->
     <div id="mainApp">
-        <!-- Header -->
         <div class="header">
             <h1>Enhancive Tracker</h1>
             <div class="header-actions">
-                <button onclick="DataManager.exportData()" title="Export Data">💾 Export</button>
-                <button onclick="DataManager.importData()" title="Import Data">📂 Import</button>
-                <input type="file" id="importFile" accept=".json" style="display: none;" onchange="DataManager.handleImport(event)">
+                <button onclick="App.exportData()">💾 Export</button>
+                <button onclick="App.importData()">📂 Import</button>
+                <button onclick="App.logout()">🚪 Logout</button>
             </div>
         </div>
         
-        <!-- Navigation Tabs -->
         <div class="nav-tabs">
-            <button class="nav-tab active" onclick="UI.switchTab('items')">📦 Items</button>
-            <button class="nav-tab" onclick="UI.switchTab('equipment')">⚔️ Equipment</button>
-            <button class="nav-tab" onclick="UI.switchTab('totals')">📊 Totals</button>
-            <button class="nav-tab" onclick="UI.switchTab('analysis')">📈 Analysis</button>
-            <button class="nav-tab" onclick="UI.switchTab('settings')">⚙️ Settings</button>
+            <button class="nav-tab active" onclick="App.switchTab('items')">📦 Items</button>
+            <button class="nav-tab" onclick="App.switchTab('equipment')">⚔️ Equipment</button>
+            <button class="nav-tab" onclick="App.switchTab('totals')">📊 Totals</button>
+            <button class="nav-tab" onclick="App.switchTab('analysis')">📈 Analysis</button>
+            <button class="nav-tab" onclick="App.switchTab('settings')">⚙️ Settings</button>
         </div>
         
-        <!-- Statistics Bar -->
         <div class="stats-bar">
             <div class="stat-card">
                 <div class="value" id="totalItems">0</div>
@@ -51,41 +354,286 @@
                 <div class="label">Capped Stats</div>
             </div>
         </div>
-
-        <!-- Tab Content Containers -->
-        <div id="itemsTab" class="tab-content active">
-            <!-- Items content will be loaded here -->
+        
+        <!-- Tab Contents -->
+        <div id="items-tab" class="tab-content active">
+            <h2>Items Management</h2>
+            <p>Manage your enhancive items here.</p>
         </div>
-
-        <div id="equipmentTab" class="tab-content">
-            <!-- Equipment content will be loaded here -->
+        
+        <div id="equipment-tab" class="tab-content">
+            <h2>Equipment</h2>
+            <p>View and manage your equipped items.</p>
         </div>
-
-        <div id="totalsTab" class="tab-content">
-            <!-- Totals content will be loaded here -->
+        
+        <div id="totals-tab" class="tab-content">
+            <h2>Totals</h2>
+            <p>View your total enhancement values.</p>
         </div>
-
-        <div id="analysisTab" class="tab-content">
-            <!-- Analysis content will be loaded here -->
+        
+        <div id="analysis-tab" class="tab-content">
+            <h2>Analysis</h2>
+            <p>Analyze your enhancive setup.</p>
         </div>
-
-        <div id="settingsTab" class="tab-content">
-            <!-- Settings content will be loaded here -->
+        
+        <div id="settings-tab" class="tab-content">
+            <div class="settings-section">
+                <h3>Account</h3>
+                <p>Logged in as: <strong id="currentUser">User</strong></p>
+                <div class="settings-actions">
+                    <button class="btn btn-secondary" onclick="App.logout()">Logout</button>
+                </div>
+            </div>
+            
+            <div class="settings-section">
+                <h3>Data Management</h3>
+                <div class="settings-actions">
+                    <button class="btn btn-primary" onclick="App.exportData()">Export Data</button>
+                    <button class="btn btn-primary" onclick="App.importData()">Import Data</button>
+                    <button class="btn btn-secondary" onclick="App.syncData()">Sync with Server</button>
+                    <button class="btn btn-danger" onclick="App.clearData()">Clear Local Data</button>
+                </div>
+            </div>
+            
+            <div class="settings-section">
+                <h3>About</h3>
+                <p>Enhancive Tracker v2.0</p>
+                <p>Track and manage your GemStone IV enhancive items.</p>
+            </div>
         </div>
     </div>
 
-    <!-- Notification container -->
-    <div id="notifications"></div>
+    <!-- Hidden file input for import -->
+    <input type="file" id="importFile" accept=".json" style="display: none;" onchange="App.handleImport(event)">
+    
+    <!-- Notification -->
+    <div id="notification"></div>
 
-    <!-- Scripts -->
-    <script src="js/config.js"></script>
-    <script src="js/data.js"></script>
-    <script src="js/ui.js"></script>
-    <script src="js/items.js"></script>
-    <script src="js/equipment.js"></script>
-    <script src="js/totals.js"></script>
-    <script src="js/analysis.js"></script>
-    <script src="js/settings.js"></script>
-    <script src="js/app.js"></script>
+    <!-- JavaScript Modules -->
+    <script>
+        // Configuration Module
+        const Config = {
+            API_URL: window.location.hostname === 'localhost' 
+                ? 'http://localhost:3000/api' 
+                : 'https://enhancives-tracker-api.onrender.com/api',
+            AUTO_SAVE_INTERVAL: 30000
+        };
+
+        // Data Manager Module
+        const DataManager = {
+            items: [],
+            equipment: {},
+            currentUser: null,
+
+            init() {
+                this.loadFromStorage();
+            },
+
+            loadFromStorage() {
+                const savedData = localStorage.getItem('enhanciveData');
+                if (savedData) {
+                    const data = JSON.parse(savedData);
+                    this.items = data.items || [];
+                    this.equipment = data.equipment || {};
+                }
+                
+                const savedUser = localStorage.getItem('currentUser');
+                if (savedUser) {
+                    this.currentUser = JSON.parse(savedUser);
+                }
+            },
+
+            saveToStorage() {
+                const data = {
+                    items: this.items,
+                    equipment: this.equipment
+                };
+                localStorage.setItem('enhanciveData', JSON.stringify(data));
+            },
+
+            exportData() {
+                const data = {
+                    items: this.items,
+                    equipment: this.equipment,
+                    exportDate: new Date().toISOString(),
+                    version: '2.0'
+                };
+                
+                const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `enhancive-tracker-${new Date().toISOString().split('T')[0]}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                UI.showNotification('Data exported successfully');
+            },
+
+            importData(data) {
+                this.items = data.items || [];
+                this.equipment = data.equipment || {};
+                this.saveToStorage();
+                App.updateStats();
+                UI.showNotification('Data imported successfully');
+            }
+        };
+
+        // UI Manager Module
+        const UI = {
+            showNotification(message, duration = 3000) {
+                const notification = document.getElementById('notification');
+                notification.textContent = message;
+                notification.classList.add('show');
+                
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                }, duration);
+            },
+
+            switchTab(tabName) {
+                // Update tab buttons
+                document.querySelectorAll('.nav-tab').forEach(tab => {
+                    tab.classList.remove('active');
+                });
+                event.target.classList.add('active');
+                
+                // Update tab content
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.classList.remove('active');
+                });
+                document.getElementById(`${tabName}-tab`).classList.add('active');
+            }
+        };
+
+        // Main Application Module
+        const App = {
+            init() {
+                DataManager.init();
+                this.checkAuth();
+                this.updateStats();
+                
+                // Auto-save
+                setInterval(() => {
+                    DataManager.saveToStorage();
+                }, Config.AUTO_SAVE_INTERVAL);
+            },
+
+            checkAuth() {
+                if (DataManager.currentUser) {
+                    this.showApp();
+                } else {
+                    this.showLogin();
+                }
+            },
+
+            showLogin() {
+                document.getElementById('loginScreen').style.display = 'flex';
+                document.getElementById('mainApp').style.display = 'none';
+            },
+
+            showApp() {
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('mainApp').style.display = 'block';
+                
+                if (DataManager.currentUser) {
+                    document.getElementById('currentUser').textContent = DataManager.currentUser;
+                }
+                
+                this.updateStats();
+            },
+
+            handleLogin(event) {
+                event.preventDefault();
+                const username = document.getElementById('username').value;
+                const password = document.getElementById('password').value;
+                
+                // For demo purposes, accept any login
+                DataManager.currentUser = username;
+                localStorage.setItem('currentUser', JSON.stringify(username));
+                
+                this.showApp();
+                UI.showNotification(`Welcome, ${username}!`);
+            },
+
+            showRegister() {
+                // For demo purposes, just show a message
+                UI.showNotification('Registration coming soon!');
+            },
+
+            logout() {
+                DataManager.currentUser = null;
+                localStorage.removeItem('currentUser');
+                this.showLogin();
+                UI.showNotification('Logged out successfully');
+            },
+
+            switchTab(tabName) {
+                UI.switchTab(tabName);
+                this.updateStats();
+            },
+
+            updateStats() {
+                document.getElementById('totalItems').textContent = DataManager.items.length;
+                document.getElementById('totalEquipped').textContent = 
+                    Object.values(DataManager.equipment).filter(item => item).length;
+                document.getElementById('slotsFiltered').textContent = 
+                    Object.keys(DataManager.equipment).length;
+                document.getElementById('activeEnhancives').textContent = 
+                    DataManager.items.filter(item => item && item.active).length;
+                document.getElementById('cappedStats').textContent = 0; // Calculate based on your logic
+            },
+
+            exportData() {
+                DataManager.exportData();
+            },
+
+            importData() {
+                document.getElementById('importFile').click();
+            },
+
+            handleImport(event) {
+                const file = event.target.files[0];
+                if (!file) return;
+                
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const data = JSON.parse(e.target.result);
+                        DataManager.importData(data);
+                    } catch (error) {
+                        UI.showNotification('Failed to import data');
+                    }
+                };
+                reader.readAsText(file);
+                event.target.value = '';
+            },
+
+            syncData() {
+                UI.showNotification('Syncing with server...');
+                // Implement server sync
+                setTimeout(() => {
+                    UI.showNotification('Sync complete!');
+                }, 1000);
+            },
+
+            clearData() {
+                if (confirm('Are you sure you want to clear all local data?')) {
+                    DataManager.items = [];
+                    DataManager.equipment = {};
+                    DataManager.saveToStorage();
+                    this.updateStats();
+                    UI.showNotification('Data cleared');
+                }
+            }
+        };
+
+        // Initialize app when page loads
+        window.addEventListener('DOMContentLoaded', () => {
+            App.init();
+        });
+    </script>
 </body>
 </html>

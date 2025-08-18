@@ -1,7 +1,11 @@
 // Settings module
 const SettingsModule = {
-    preferences: {},
-    
+    preferences: {
+        showNotifications: true,
+        autoSave: true,
+        compactView: false
+    },
+     
     init() {
         this.loadPreferences();
         console.log('Settings module initialized');
@@ -208,36 +212,5 @@ const SettingsModule = {
             UI.showNotification('Local data cleared', 'info');
             location.reload();
         }
-    },
-    
-    getLastSyncTime() {
-        const lastSync = localStorage.getItem('lastSyncTime');
-        if (!lastSync) return 'Never';
-        
-        const date = new Date(lastSync);
-        const now = new Date();
-        const diff = now - date;
-        
-        if (diff < 60000) return 'Just now';
-        if (diff < 3600000) return `${Math.floor(diff / 60000)} minutes ago`;
-        if (diff < 86400000) return `${Math.floor(diff / 3600000)} hours ago`;
-        return date.toLocaleDateString();
-    },
-    
-    showHelp() {
-        alert(`Enhancive Tracker Help
-
-Navigation:
-- Items: Manage your enhancive items
-- Equipment: View and manage equipped items
-- Totals: See combined enhancement values
-- Analysis: Get insights and recommendations
-- Settings: Configure app preferences
-
-Tips:
-- Click on items to edit them
-- Drag items to equipment slots
-- Use export/import for backups
-- Sync regularly to save to server`);
     }
 };

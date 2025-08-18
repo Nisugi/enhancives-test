@@ -1,7 +1,42 @@
 // UI management module
 const UI = {
     currentTab: 'items',
+
+    // Initialize UI module
+    init() {
+        console.log('UI module initialized');
+    },
     
+    // Create target options for dropdowns
+    createTargetOptions() {
+        let options = '<option value="">Select Target...</option>';
+        
+        // Add stats
+        options = '<optgroup label="Stats">';
+        stats.forEach(stat => {
+            options = `<option value="${stat}">${stat}</option>`;
+        });
+        options = '</optgroup>';
+        
+        // Add skills by category
+        for (const [category, skillList] of Object.entries(skills)) {
+            options = `<optgroup label="${category}">`;
+            skillList.forEach(skill => {
+                options = `<option value="${skill}">${skill}</option>`;
+            });
+            options = '</optgroup>';
+        }
+
+        // Add resources
+        options = '<optgroup label="Resources">';
+        resources.forEach(resource => {
+            options = `<option value="${resource}">${resource}</option>`;
+        });
+        options = '</optgroup>';
+        
+        return options;
+    },
+
     // Switch between tabs
     switchTab(tabName) {
         // Hide all tab contents
@@ -357,7 +392,7 @@ const UI = {
         }
         
         return enhancives.map(enh => 
-            `${enh.target}: +${enh.amount}`
+            `${enh.target}: ${enh.amount}`
         ).join(', ');
     },
     

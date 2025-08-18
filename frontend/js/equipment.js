@@ -10,9 +10,147 @@ const EquipmentModule = {
         const container = document.getElementById('equipmentTab');
         if (!container) return;
         
-        container.innerHTML = this.generateEquipmentHTML();
+        container.innerHTML = `
+            <div class="equipment-layout">
+                <div class="panel">
+                    <h2 class="section-title">Equipment Slots (57 Total)</h2>
+                    <div id="equipmentSlots" class="slots-container"></div>
+                </div>
+                <div class="panel">
+                    <h2 class="section-title">Equipped Enhancives Summary</h2>
+                    <div id="equippedSummary" class="equipped-summary"></div>
+                </div>
+            </div>
+        `;
+        
+        this.renderSlots();
+        this.renderSummary();
     },
     
+    renderSlots() {
+        const equipment = DataManager.equipment;
+        const items = DataManager.items;
+        const container = document.getElementById('equipmentSlots');
+        
+        let html = '';
+        
+        for (const [location, slots] of Object.entries(equipment)) {
+            const slotCount = slots.length;
+            
+            for (let i = 0; i < slotCount; i++) {
+                const equippedId = slots[i];
+                const equippedItem = equippedId ? items.find(item => item.id === equippedId) : null;
+                
+                // Determine slot label
+                let slotLabel = slotCount > 1 ? `Slot ${i + 1}` : 'Single';
+                let slotClass = '';
+                
+                // Premium/Platinum slot logic
+                if (slotCount > 1) {
+                    if ((location === "Neck" && i >= 3) ||
+                        ((location === "Ear" || location === "Ears") && i >= 1) ||
+                        ((location === "Wrist" || location === "Finger") && i >= 2)) {
+                        if (i === slotCount - 2) {
+                            slotLabel += " (Premium)";
+                            slotClass = 'premium';
+                        } else if (i === slotCount - 1) {
+                            slotLabel += " (Platinum)";
+                            slotClass = 'platinum';
+                        }
+                    }
+                }
+                
+                // Get available items for this location
+                let availableItems;
+                if (location === "Right Hand" || location === "Left Hand") {
+                    availableItems = items.filter(item => 
+                        item.location === "Weapon" || 
+                        item.location === "Shield" || 
+                        item.location === "Off-Hand"
+                    );
+                } else {
+                    availableItems = items.filter(item => item.location === location);
+                }
+                
+                html += this.renderSlotRow(location, i, slotLabel, slotClass, equippedItem, availableItems);
+            }
+        }
+        
+        container.innerHTML = html;
+    },
+    
+    renderSlotRow(location, slotIndex, slotLabel, slotClass, equippedItem, availableItems) {
+        // Calculate total bonus for sorting
+        availableItems = availableItems.map(item => {
+            const totalBonus = item.targets.reduce((sum, t) => {
+                let value = t.amount;
+                if (stats.includes(t.target) && t.type === 'Bonus') {
+                    value = t.amount * 2;
+                }
+                return sum + value;
+            }, 0);
+            return { ...item, totalBonus };
+        }).sort((a, b) => b.totalBonus - a.totalBonus);
+        
+        const options = availableItems.map(item => {
+            const isEquipped = Object.values(DataManager.equipment).some(slots => 
+                slots.includes(item.id)
+            );
+            const disabled = isEquipped && item.id !== (equippedItem ? equippedItem.id : null);
+            return `<option value="${item.id}" ${equippedItem && item.id === equippedItem.id ? 'selected' : ''} ${disabled ? 'disabled' : ''}>
+                (${item.totalBonus}) ${item.name} ${disabled ? '(Equipped)' : ''}
+            </option>`;
+        }).join('');
+        
+        return `
+            <div class="slot-row">
+                <div class="slot-location">${location}</div>
+                <div class="slot-number ${slotClass}">${slotLabel}</div>
+                <select class="slot-item-select ${equippedItem ? 'has-item' : ''}"
+                        onchange="EquipmentModule.equipItem(this.value, '${location}', ${slotIndex})">
+                    <option value="">-- Empty --</option>
+                    ${options}
+                </select>
+                <div class="slot-status ${equippedItem ? 'filled' : 'empty'}">
+                    ${equippedItem ? 'Filled' : 'Empty'}
+                </div>
+                <button class="unequip-btn ${equippedItem ? 'active' : ''}" 
+                        onclick="EquipmentModule.unequip('${location}', ${slotIndex})"
+                        style="${equippedItem ? '' : 'visibility: hidden;'}">
+                    ✕
+                </button>
+            </div>
+        `;
+    },
+    
+    equipItem(itemId, location, slotIndex) {
+        if (itemId === "") {
+            DataManager.equipment[location][slotIndex] = null;
+        } else {
+            // Unequip from any other slot first
+            for (const loc in DataManager.equipment) {
+                DataManager.equipment[loc] = DataManager.equipment[loc].map(slot => 
+                    slot === parseInt(itemId) ? null : slot
+                );
+            }
+            // Equip in new slot
+            DataManager.equipment[location][slotIndex] = parseInt(itemId);
+        }
+        
+        DataManager.saveToStorage();
+        this.refresh();
+        App.updateStatistics();
+        TotalsModule.refresh();
+    },
+    
+    unequip(location, slotIndex) {
+        DataManager.equipment[location][slotIndex] = null;
+        DataManager.saveToStorage();
+        this.refresh();
+        App.updateStatistics();
+        TotalsModule.refresh();
+    },
+
     // Generate HTML for equipment tab
     generateEquipmentHTML() {
         return `

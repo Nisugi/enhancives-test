@@ -20,7 +20,7 @@ const App = {
         SettingsModule.init();
         
         // Load initial tab
-        this.switchTab('items');
+        UI.switchTab('items');
         
         // Update statistics
         this.updateStatistics();
@@ -31,33 +31,6 @@ const App = {
         }, 30000); // Save every 30 seconds
         
         console.log('Application initialized successfully');
-    },
-    
-    // Switch between tabs
-    switchTab(tabName) {
-        this.currentTab = tabName;
-        UI.switchTab(tabName);
-        
-        // Refresh the appropriate module
-        switch(tabName) {
-            case 'items':
-                ItemsModule.refresh();
-                break;
-            case 'equipment':
-                EquipmentModule.refresh();
-                break;
-            case 'totals':
-                TotalsModule.refresh();
-                break;
-            case 'analysis':
-                AnalysisModule.refresh();
-                break;
-            case 'settings':
-                SettingsModule.refresh();
-                break;
-        }
-        
-        this.updateStatistics();
     },
     
     // Update statistics bar
@@ -121,85 +94,6 @@ const App = {
     handleError(error, context) {
         console.error(`Error in ${context}:`, error);
         UI.showNotification(`Error: ${error.message || 'An unexpected error occurred'}`, 'error');
-    }
-};
-
-// Settings module with localStorage preferences
-const SettingsModule = {
-    init() {
-        // Load preferences from localStorage
-        this.loadPreferences();
-    },
-    
-    loadPreferences() {
-        const prefs = localStorage.getItem('enhanciveTrackerPrefs');
-        if (prefs) {
-            try {
-                this.preferences = JSON.parse(prefs);
-            } catch (error) {
-                this.preferences = this.getDefaultPreferences();
-            }
-        } else {
-            this.preferences = this.getDefaultPreferences();
-        }
-    },
-    
-    getDefaultPreferences() {
-        return {
-            theme: 'light',
-            autoSave: true,
-            showNotifications: true
-        };
-    },
-    
-    savePreferences() {
-        localStorage.setItem('enhanciveTrackerPrefs', JSON.stringify(this.preferences));
-    },
-    
-    refresh() {
-        const container = document.getElementById('settingsTab');
-        if (!container) return;
-        
-        container.innerHTML = `
-            <h2>Settings</h2>
-            
-            <div class="settings-section">
-                <h3>Data Management</h3>
-                <div class="settings-actions">
-                    <button class="btn btn-primary" onclick="DataManager.exportData()">
-                        💾 Export Data
-                    </button>
-                    <button class="btn btn-primary" onclick="DataManager.importData()">
-                        📂 Import Data
-                    </button>
-                    <button class="btn btn-danger" onclick="DataManager.clearAllData()">
-                        🗑️ Clear All Data
-                    </button>
-                </div>
-                <p class="help-text">Export your data for backup or import data from a previous backup.</p>
-            </div>
-            
-            <div class="settings-section">
-                <h3>Display Options</h3>
-                <label class="checkbox-label">
-                    <input type="checkbox" ${this.preferences.showNotifications ? 'checked' : ''} 
-                           onchange="SettingsModule.toggleNotifications(this.checked)">
-                    Show notifications
-                </label>
-            </div>
-            
-            <div class="settings-section">
-                <h3>About</h3>
-                <p>Enhancive Tracker v2.0 (GitHub Pages Edition)</p>
-                <p>Track and manage your GemStone IV enhancive items.</p>
-                <p>All data is stored locally in your browser.</p>
-            </div>
-        `;
-    },
-    
-    toggleNotifications(enabled) {
-        this.preferences.showNotifications = enabled;
-        this.savePreferences();
     }
 };
 

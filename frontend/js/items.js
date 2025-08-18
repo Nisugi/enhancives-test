@@ -1,18 +1,69 @@
 // Items management module
 const ItemsModule = {
-    searchQuery: '',
-    filters: {
-        location: 'All',
-        permanence: 'All',
-        hasEnhancives: false,
-        available: undefined
-    },
+    targetCount: 1,
     
     // Initialize items tab
     init() {
+        this.renderForm();
         this.refresh();
     },
     
+    // Render the add item form
+    renderForm() {
+        const container = document.getElementById('itemsTab');
+        if (!container) return;
+        
+        const formHtml = `
+            <div class="items-layout">
+                <div class="panel panel-sticky">
+                    <h2 class="section-title">Add New Item</h2>
+                    <div id="itemForm">
+                        <div class="form-group">
+                            <label>Item Name</label>
+                            <input type="text" id="itemName" placeholder="e.g., Dragon Scale Armor">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Location</label>
+                            <select id="itemLocation">
+                                <option value="">Select Location...</option>
+                                ${locations.map(loc => `<option value="${loc}">${loc}</option>`).join('')}
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Permanence</label>
+                            <select id="itemPermanence">
+                                ${permanenceTypes.map(type => `<option value="${type}">${type}</option>`).join('')}
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Notes (Optional)</label>
+                            <textarea id="itemNotes" placeholder="Any additional notes..."></textarea>
+                        </div>
+                        
+                        <div class="enhancive-targets">
+                            <label style="font-weight: 600;">Enhancive Targets (1-6)</label>
+                            <div id="targetsContainer"></div>
+                            <button class="btn btn-add-target" onclick="ItemsModule.addTargetRow()"> Add Target</button>
+                        </div>
+                        
+                        <button class="btn btn-primary" onclick="ItemsModule.saveItem()">Save Item</button>
+                    </div>
+                </div>
+                <div class="panel">
+                    <h2 class="section-title">Your Items</h2>
+                    <input type="text" class="search-bar" placeholder="🔍 Search items..." onkeyup="ItemsModule.searchItems(this.value)">
+                    <div id="itemsList" class="items-grid"></div>
+                </div>
+            </div>
+        `;
+        
+        container.innerHTML = formHtml;
+        this.addTargetRow();
+    },
+
     // Refresh items display
     refresh() {
         const container = document.getElementById('itemsTab');
@@ -88,7 +139,7 @@ const ItemsModule = {
     // Generate individual item card
     generateItemCard(item) {
         const enhancivesList = item.enhancives && item.enhancives.length > 0 
-            ? item.enhancives.map(enh => `<li>${enh.target}: +${enh.amount}</li>`).join('')
+            ? item.enhancives.map(enh => `<li>${enh.target}: ${enh.amount}</li>`).join('')
             : '<li>None</li>';
         
         return `

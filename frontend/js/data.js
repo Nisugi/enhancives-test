@@ -2,26 +2,42 @@
 const DataManager = {
     items: [],
     equipment: {},
+    currentUser: null,
     
-    // Initialize data from localStorage
+    // Initialize data manager
     init() {
-        this.loadFromStorage();
         this.initializeEquipmentSlots();
+        this.loadFromStorage();
+        console.log('Data manager initialized');
     },
-    
-    // Load data from localStorage
+
+    // Initialize equipment with proper slot structure
+    initializeEquipmentSlots() {
+        for (const [location, count] of Object.entries(wearLocations)) {
+            this.equipment[location] = Array(count).fill(null);
+        }
+    },
+
+    // Load data from local storage
     loadFromStorage() {
-        const savedData = localStorage.getItem('enhanciveTrackerData');
-        if (savedData) {
-            try {
+        try {
+            const savedData = localStorage.getItem('enhanciveTrackerData');
+            if (savedData) {
                 const data = JSON.parse(savedData);
                 this.items = data.items || [];
-                this.equipment = data.equipment || {};
-            } catch (error) {
-                console.error('Failed to load saved data:', error);
-                this.items = [];
-                this.equipment = {};
+                // Merge saved equipment with initialized structure
+                if (data.equipment) {
+                    for (const [location, slots] of Object.entries(data.equipment)) {
+                        if (this.equipment[location]) {
+                            this.equipment[location] = slots;
+                        }
+                    }
+                }
             }
+        } catch (error) {
+            console.error('Error loading data:', error);
+            this.items = [];
+            this.initializeEquipmentSlots();
         }
     },
     
@@ -114,7 +130,7 @@ const DataManager = {
                         if (!totals[enh.target]) {
                             totals[enh.target] = 0;
                         }
-                        totals[enh.target] += parseInt(enh.amount) || 0;
+                        totals[enh.target] = parseInt(enh.amount) || 0;
                     }
                 });
             }
