@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhancive Tracker</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Login Screen -->
+    <div id="loginScreen" class="login-container">
+        <div class="login-box">
+            <h1>Enhancive Tracker</h1>
+            <div id="loginForm">
+                <h2>Login</h2>
+                <input type="text" id="loginUsername" placeholder="Username">
+                <input type="password" id="loginPassword" placeholder="Password">
+                <button onclick="Auth.login()">Login</button>
+                <p>Don't have an account? <a href="#" onclick="Auth.showRegister()">Register</a></p>
+            </div>
+            <div id="registerForm" style="display: none;">
+                <h2>Register</h2>
+                <input type="text" id="registerUsername" placeholder="Choose username">
+                <input type="password" id="registerPassword" placeholder="Choose password">
+                <input type="password" id="registerPasswordConfirm" placeholder="Confirm password">
+                <button onclick="Auth.register()">Create Account</button>
+                <p>Already have an account? <a href="#" onclick="Auth.showLogin()">Login</a></p>
+            </div>
+            <div id="loginMessage"></div>
+        </div>
+    </div>
+
+    <!-- Main Application -->
+    <div id="mainApp" style="display: none;">
+        <!-- Header -->
+        <div class="header">
+            <h1>Enhancive Tracker</h1>
+            <span class="user-info">Logged in as: <span id="currentUser"></span></span>
+            <button onclick="Auth.logout()">Logout</button>
+        </div>
+        
+        <!-- Navigation Tabs -->
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="UI.switchTab('items')">📦 Items</button>
+            <button class="nav-tab" onclick="UI.switchTab('equipment')">⚔️ Equipment</button>
+            <button class="nav-tab" onclick="UI.switchTab('totals')">📊 Totals</button>
+            <button class="nav-tab" onclick="UI.switchTab('analysis')">📈 Analysis</button>
+            <button class="nav-tab" onclick="UI.switchTab('settings')">⚙️ Settings</button>
+            <button class="nav-tab" onclick="UI.switchTab('marketplace')">🏪 Marketplace</button>
+        </div>
+        
+        <!-- Statistics Bar -->
+        <div class="stats-bar">
+            <div class="stat-card">
+                <div class="value" id="totalItems">0</div>
+                <div class="label">Total Items</div>
+            </div>
+            <div class="stat-card">
+                <div class="value" id="totalEquipped">0</div>
+                <div class="label">Equipped</div>
+            </div>
+            <div class="stat-card">
+                <div class="value" id="slotsFiltered">0</div>
+                <div class="label">Slots Filled</div>
+            </div>
+            <div class="stat-card">
+                <div class="value" id="activeEnhancives">0</div>
+                <div class="label">Active Enhancives</div>
+            </div>
+            <div class="stat-card">
+                <div class="value" id="cappedStats">0</div>
+                <div class="label">Capped Stats</div>
+            </div>
+        </div>
+
+        <!-- Tab Content Containers -->
+        <div id="itemsTab" class="tab-content active">
+            <!-- Items content will be loaded here -->
+        </div>
+
+        <div id="equipmentTab" class="tab-content">
+            <!-- Equipment content will be loaded here -->
+        </div>
+
+        <div id="totalsTab" class="tab-content">
+            <!-- Totals content will be loaded here -->
+        </div>
+
+        <div id="analysisTab" class="tab-content">
+            <!-- Analysis content will be loaded here -->
+        </div>
+
+        <div id="settingsTab" class="tab-content">
+            <!-- Settings content will be loaded here -->
+        </div>
+
+        <div id="marketplaceTab" class="tab-content">
+            <!-- Marketplace content will be loaded here -->
+        </div>
+    </div>
+
+    <!-- Notification container -->
+    <div id="notifications"></div>
+
+    <!-- Scripts -->
+    <script src="js/config.js"></script>
+    <script src="js/data.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/items.js"></script>
+    <script src="js/equipment.js"></script>
+    <script src="js/totals.js"></script>
+    <script src="js/analysis.js"></script>
+    <script src="js/settings.js"></script>
+    <script src="js/marketplace.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
