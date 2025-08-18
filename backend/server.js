@@ -18,7 +18,7 @@ initDatabase();
 // CORS configuration for production
 const corsOptions = {
     origin: [
-        'https://YOUR_USERNAME.github.io', // Replace YOUR_USERNAME with your GitHub username
+        'https://nisugi.github.io/enhancives-test/', // Replace YOUR_USERNAME with your GitHub username
         'http://localhost:3000', // For local testing if needed
         'http://127.0.0.1:5500', // For VS Code Live Server if needed
     ],

@@ -1,7 +1,7 @@
 // Configuration for production
 const CONFIG = {
     // This will be your Render backend URL (we'll update after deployment)
-    API_BASE_URL: 'https://enhancive-tracker-api.onrender.com/api',
+    API_BASE_URL: 'https://enhancives-tracker-api.onrender.com',
     
     // Local storage keys
     USER_KEY: 'enhanciveTrackerUser',
