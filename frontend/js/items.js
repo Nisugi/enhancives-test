@@ -202,6 +202,7 @@ const ItemsModule = (() => {
                             style="flex: 1; padding: 8px 16px; font-size: 0.9em;">
                         ${item.isListed ? '📤 Unlist' : '🏪 List'}
                     </button>
+                    <button class="btn btn-secondary" onclick="ItemsModule.makeCopy(${item.id})" style="flex: 1; padding: 8px 16px; font-size: 0.9em;">📋 Copy</button>
                     <button class="btn btn-danger" onclick="ItemsModule.deleteItem(${item.id})" style="flex: 1; padding: 8px 16px; font-size: 0.9em;">Delete</button>
                     <button class="btn btn-primary" onclick="ItemsModule.editItem(${item.id})" style="flex: 1; padding: 8px 16px; font-size: 0.9em;">Edit</button>
                 </div>
@@ -352,6 +353,30 @@ const ItemsModule = (() => {
         }
     };
     
+    const makeCopy = (itemId) => {
+        const items = DataModule.getItems();
+        const originalItem = items.find(item => item.id === itemId);
+        
+        if (!originalItem) return;
+        
+        // Create a deep copy of the item
+        const copy = JSON.parse(JSON.stringify(originalItem));
+        
+        // Generate new ID and update name
+        copy.id = Date.now() + Math.floor(Math.random() * 1000);
+        copy.name = originalItem.name.includes('(Copy)') ? 
+                    originalItem.name : 
+                    `${originalItem.name} (Copy)`;
+        copy.isListed = false; // Copies should not be listed initially
+        
+        // Add the copy to items
+        items.push(copy);
+        DataModule.saveItems(items);
+        
+        renderItemsList();
+        UI.showNotification('Copy created! Visit the Copies tab to modify swap targets.', 'success');
+    };
+    
     return {
         init,
         refresh: () => {
@@ -365,6 +390,7 @@ const ItemsModule = (() => {
         editNotes,
         deleteItem,
         searchItems,
-        toggleListed
+        toggleListed,
+        makeCopy
     };
 })();

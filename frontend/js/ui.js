@@ -20,6 +20,8 @@ const UI = (() => {
             TotalsModule.refresh();
         } else if (tabName === 'analysis') {
             AnalysisModule.refresh();
+        } else if (tabName === 'copies') {
+            CopiesModule.init();
         } else if (tabName === 'settings') {
             SettingsModule.refresh();
         } else if (tabName === 'items') {

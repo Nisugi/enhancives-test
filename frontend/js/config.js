@@ -34,6 +34,30 @@ const Constants = {
     
     boostTypes: ["Base", "Bonus", "Ranks", "Regen", "Max"],
     permanenceTypes: ["Persists", "Crumbly"],
+    
+    // Swap groups for enhancive target modifications
+    swapGroups: [
+        ["Aura", "Strength", "Wisdom"],
+        ["Agility", "Constitution", "Dexterity", "Discipline"],
+        ["Influence", "Intuition", "Logic"],
+        ["Brawling", "Blunt Weapons", "Edged Weapons", "Ranged Weapons", "Polearm Weapons", "Thrown Weapons", "Two-Handed Weapons", "Spell Aiming"],
+        ["Arcane Symbols", "Magic Item Use"],
+        ["Spirit Mana Control", "Elemental Mana Control", "Mental Mana Control"],
+        ["Elemental Lore - Air", "Elemental Lore - Earth", "Elemental Lore - Fire", "Elemental Lore - Water",
+         "Spiritual Lore - Blessings", "Spiritual Lore - Religion", "Spiritual Lore - Summoning",
+         "Sorcerous Lore - Demonology", "Sorcerous Lore - Necromancy",
+         "Mental Lore - Divination", "Mental Lore - Manipulation", "Mental Lore - Telepathy", 
+         "Mental Lore - Transference", "Mental Lore - Transformation"],
+        ["Health Recovery", "Mana Recovery", "Stamina Recovery"],
+        ["Max Health", "Max Mana", "Max Stamina"]
+    ],
+    
+    // Health to mana/stamina conversions get halved
+    halfValueConversions: [
+        { from: "Max Health", to: ["Max Mana", "Max Stamina"] },
+        { from: "Health Recovery", to: ["Mana Recovery", "Stamina Recovery"] }
+    ],
+    
     statCap: 40,
     skillCap: 50,
     resourceCaps: {

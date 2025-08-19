@@ -41,6 +41,7 @@
             <button class="nav-tab" onclick="UI.switchTab('equipment')">⚔️ Equipment</button>
             <button class="nav-tab" onclick="UI.switchTab('totals')">📊 Totals</button>
             <button class="nav-tab" onclick="UI.switchTab('analysis')">📈 Analysis</button>
+            <button class="nav-tab" onclick="UI.switchTab('copies')">📋 Copies</button>
             <button class="nav-tab" id="marketplaceTab" onclick="UI.switchTab('marketplace')" style="display: none;">🏪 Marketplace</button>
             <button class="nav-tab" onclick="UI.switchTab('settings')">⚙️ Settings</button>
         </div>
@@ -120,6 +121,14 @@
             </div>
         </div>
         
+        <!-- Copies Tab -->
+        <div id="copies-tab" class="tab-panel">
+            <div class="panel">
+                <h2 class="section-title">📋 Item Copies</h2>
+                <div id="copiesContent"></div>
+            </div>
+        </div>
+        
         <!-- Settings Tab -->
         <div id="settings-tab" class="tab-panel">
             <div class="panel">
@@ -149,6 +158,7 @@
     <script src="js/equipment.js"></script>
     <script src="js/totals.js"></script>
     <script src="js/analysis.js"></script>
+    <script src="js/copies.js"></script>
     <script src="js/settings.js"></script>
     <script src="js/auth.js"></script>
     <script src="js/marketplace.js"></script>
