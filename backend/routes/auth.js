@@ -57,9 +57,13 @@ router.post('/register', async (req, res) => {
             }
         });
 
+        // Generate a simple token containing user ID
+        const token = Buffer.from(JSON.stringify({ userId: result.id })).toString('base64');
+        
         res.json({ 
             success: true, 
-            user: { id: result.id, username: result.username }
+            user: { id: result.id, username: result.username },
+            token: token
         });
     } catch (error) {
         console.error('Registration error:', error);
@@ -109,9 +113,13 @@ router.post('/login', async (req, res) => {
             }
         });
 
+        // Generate a simple token containing user ID
+        const token = Buffer.from(JSON.stringify({ userId: result.id })).toString('base64');
+        
         res.json({ 
             success: true, 
-            user: { id: result.id, username: result.username }
+            user: { id: result.id, username: result.username },
+            token: token
         });
     } catch (error) {
         console.error('Login error:', error);
