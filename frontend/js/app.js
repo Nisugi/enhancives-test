@@ -89,18 +89,6 @@ const StatsModule = (() => {
     };
 })();
 
-// ==================== AUTH MODULE (STUB) ====================
-const AuthModule = (() => {
-    const syncData = () => {
-        UI.showNotification('Sync functionality coming soon!', 'info');
-    };
-    
-    const logout = () => {
-        UI.showNotification('Logout functionality coming soon!', 'info');
-    };
-    
-    return { syncData, logout };
-})();
 
 // Initialize application when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {

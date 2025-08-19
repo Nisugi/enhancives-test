@@ -66,7 +66,7 @@ const DataModule = (() => {
             const item = {
                 id: nextId++,
                 ...itemData,
-                dateAdded: new Date().toISOString()
+                created_at: new Date().toISOString()
             };
             items.push(item);
             saveData();
