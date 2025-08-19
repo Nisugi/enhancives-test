@@ -81,22 +81,23 @@ body {
 /* ==================== NAVIGATION TABS ==================== */
 .nav-tabs {
     display: flex;
-    gap: 10px;
+    gap: 15px;
     margin-bottom: 30px;
     background: white;
-    padding: 10px;
+    padding: 15px;
     border-radius: 10px;
     box-shadow: 0 5px 20px rgba(0,0,0,0.1);
     overflow-x: auto;
 }
 
 .nav-tab {
-    padding: 12px 24px;
+    padding: 18px 32px;
     background: transparent;
     border: 2px solid transparent;
-    border-radius: 8px;
+    border-radius: 10px;
     color: var(--gray);
     font-weight: 600;
+    font-size: 1.1em;
     cursor: pointer;
     transition: all 0.3s;
     white-space: nowrap;
@@ -510,6 +511,19 @@ body {
     height: 12px;
 }
 
+/* Remove spinner buttons from number inputs */
+.amount-input {
+    width: 60px !important;
+    -webkit-appearance: none;
+    -moz-appearance: textfield;
+}
+
+.amount-input::-webkit-outer-spin-button,
+.amount-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
 /* ==================== TOTALS TAB STYLES ==================== */
 .totals-layout {
     display: grid;
@@ -619,7 +633,7 @@ body {
     background: white;
     padding: 5px;
     border-radius: 10px;
-    height: calc(100% - 60px); /* Match slots container height */
+    height: calc(100% - 70px); /* Account for section title and margins */
     overflow-y: auto;
     overflow-x: hidden;
     word-wrap: break-word;
@@ -827,7 +841,8 @@ body {
     }
     
     .nav-tab {
-        padding: 10px 16px;
+        padding: 14px 20px;
+        font-size: 1em;
         white-space: nowrap;
     }
     
