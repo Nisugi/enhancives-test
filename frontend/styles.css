@@ -396,13 +396,14 @@ body {
 
 .slot-row {
     display: grid;
-    grid-template-columns: 120px 100px 1fr 60px 80px 40px;
-    gap: 8px;
-    padding: 6px 8px;
+    grid-template-columns: 110px 90px 1fr 50px 70px 35px;
+    gap: 2px;
+    padding: 2px 4px;
     background: #f8f9fa;
-    border-radius: 8px;
+    border-radius: 6px;
     align-items: center;
     transition: all 0.3s;
+    font-size: 0.9em;
 }
 
 .slot-row:hover {
@@ -413,11 +414,12 @@ body {
 .slot-location {
     font-weight: 600;
     color: var(--dark);
+    font-size: 0.85em;
 }
 
 .slot-number {
     color: var(--gray);
-    font-size: 0.9em;
+    font-size: 0.8em;
 }
 
 .slot-number.premium {
@@ -431,11 +433,11 @@ body {
 }
 
 .slot-item-select {
-    padding: 8px;
+    padding: 4px 6px;
     background: white;
-    border: 2px solid #e2e8f0;
-    border-radius: 6px;
-    font-size: 0.95em;
+    border: 1px solid #e2e8f0;
+    border-radius: 4px;
+    font-size: 0.85em;
     cursor: pointer;
     transition: all 0.3s;
 }
@@ -453,9 +455,9 @@ body {
 }
 
 .slot-status {
-    padding: 5px 10px;
-    border-radius: 5px;
-    font-size: 0.85em;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.75em;
     font-weight: 600;
     text-align: center;
 }
@@ -474,11 +476,14 @@ body {
     background: var(--danger);
     color: white;
     border: none;
-    border-radius: 5px;
-    padding: 8px;
+    border-radius: 4px;
+    padding: 4px;
     cursor: pointer;
     opacity: 0;
     transition: opacity 0.3s;
+    font-size: 0.8em;
+    width: 24px;
+    height: 24px;
 }
 
 .slot-row:hover .unequip-btn.active {
