@@ -131,6 +131,10 @@ const SettingsModule = (() => {
         try {
             const token = AuthModule.getToken();
             
+            console.log('=== FRONTEND SYNC LOAD ===');
+            console.log('Token:', token);
+            console.log('API URL:', `${Config.API_URL}/items/sync`);
+            
             const response = await fetch(`${Config.API_URL}/items/sync`, {
                 method: 'GET',
                 headers: {
@@ -138,9 +142,17 @@ const SettingsModule = (() => {
                 }
             });
             
-            if (!response.ok) throw new Error('Failed to sync');
+            console.log('Response status:', response.status);
+            console.log('Response headers:', response.headers);
+            
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('Response error:', response.status, errorText);
+                throw new Error(`Failed to sync: ${response.status} ${errorText}`);
+            }
             
             const data = await response.json();
+            console.log('Response data:', data);
             
             if (data.items && data.items.length > 0) {
                 // Save the cloud data locally
