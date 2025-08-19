@@ -467,7 +467,7 @@ const EquipmentModule = (() => {
         // Create empty equipment structure
         const emptyEquipment = {};
         Constants.locations.forEach(location => {
-            const slotCount = Constants.slotCounts[location] || 1;
+            const slotCount = Constants.wearLocations[location] || 1;
             emptyEquipment[location] = new Array(slotCount).fill(null);
         });
         
