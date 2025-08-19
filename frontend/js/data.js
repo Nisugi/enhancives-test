@@ -101,6 +101,12 @@ const DataModule = (() => {
             saveData();
         },
         
+        // Save entire items array (used by copies functionality)
+        saveItems: (newItems) => {
+            items = newItems;
+            saveData();
+        },
+        
         equipItem: (itemId, location, slotIndex) => {
             // Ensure equipment is initialized
             if (!equipment[location]) {

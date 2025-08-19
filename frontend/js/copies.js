@@ -70,6 +70,11 @@ const CopiesModule = {
     },
     
     renderEditMode(copy) {
+        // Get changeable locations (exclude Weapon, Shield, Armor)
+        const changeableLocations = Constants.locations.filter(loc => 
+            !['Weapon', 'Shield', 'Armor'].includes(loc)
+        );
+        
         return `
             <div class="copy-card editing" data-copy-id="${copy.id}">
                 <div class="item-header">
@@ -78,7 +83,11 @@ const CopiesModule = {
                         <div style="color: var(--gray); font-size: 0.9em;">ID: ${copy.id}</div>
                     </div>
                     <div style="display: flex; gap: 8px; align-items: center;">
-                        <div class="item-location">${copy.location}</div>
+                        <select id="location-select-${copy.id}" class="form-select" style="width: auto;">
+                            ${changeableLocations.map(loc => 
+                                `<option value="${loc}" ${copy.location === loc ? 'selected' : ''}>${loc}</option>`
+                            ).join('')}
+                        </select>
                         <span class="permanence-badge ${copy.permanence.toLowerCase()}">
                             ${copy.permanence}
                         </span>
@@ -86,7 +95,7 @@ const CopiesModule = {
                 </div>
                 
                 <div class="swap-editor">
-                    <h4 style="margin: 15px 0 10px 0;">Modify Enhancive Targets:</h4>
+                    <h4 style="margin: 15px 0 10px 0;">Modify Location & Enhancive Targets:</h4>
                     ${copy.targets.map((target, index) => this.renderSwapRow(target, index, copy.id)).join('')}
                 </div>
                 
@@ -198,8 +207,15 @@ const CopiesModule = {
         if (copyIndex === -1) return;
         
         const copy = { ...items[copyIndex] };
-        const swapRows = document.querySelectorAll('.swap-row');
         
+        // Update location
+        const locationSelect = document.getElementById(`location-select-${copyId}`);
+        if (locationSelect) {
+            copy.location = locationSelect.value;
+        }
+        
+        // Update targets
+        const swapRows = document.querySelectorAll('.swap-row');
         swapRows.forEach((row, index) => {
             const selectElement = row.querySelector('.swap-select');
             const amountElement = row.querySelector('.swap-amount');
