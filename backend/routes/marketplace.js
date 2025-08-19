@@ -12,7 +12,7 @@ router.get('/items', async (req, res) => {
                     .from('marketplace_items')
                     .select(`
                         *,
-                        users:user_id (username)
+                        users:username (username)
                     `)
                     .eq('available', true);
 
@@ -42,7 +42,7 @@ router.post('/sync', async (req, res) => {
                     await db
                         .from('marketplace_items')
                         .delete()
-                        .eq('user_id', items[0]?.user_id);
+                        .eq('username', items[0]?.username);
 
                     // Insert new items
                     const { error } = await db
@@ -55,7 +55,7 @@ router.post('/sync', async (req, res) => {
                 if (items.length > 0) {
                     // Clear existing items for this user
                     db.marketplaceItems = db.marketplaceItems.filter(
-                        item => item.user_id !== items[0].user_id
+                        item => item.username !== items[0].username
                     );
                     
                     // Add new items

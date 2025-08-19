@@ -233,7 +233,6 @@ const MarketplaceModule = (() => {
                 permanence: item.permanence,
                 notes: item.notes ? item.notes.substring(0, 500) : '', // Limit notes to 500 chars
                 targets: item.targets,
-                user_id: currentUser.id,
                 username: currentUser.username,
                 available: true,
                 dateAdded: item.dateAdded || new Date().toISOString()
