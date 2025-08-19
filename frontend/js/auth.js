@@ -11,9 +11,20 @@ const AuthModule = (() => {
                 const auth = JSON.parse(savedAuth);
                 currentUser = auth.user;
                 authToken = auth.token;
-                showAuthenticatedUI();
+                
+                // Validate token format
+                if (authToken && typeof authToken === 'string' && /^[A-Za-z0-9+/=]+$/.test(authToken)) {
+                    console.log('Valid token found in localStorage');
+                    showAuthenticatedUI();
+                } else {
+                    console.log('Invalid token format found, clearing auth');
+                    localStorage.removeItem('enhanciveAuth');
+                    currentUser = null;
+                    authToken = null;
+                }
             } catch (e) {
                 console.log('No valid auth found, running in local mode');
+                localStorage.removeItem('enhanciveAuth');
             }
         }
     };

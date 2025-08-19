@@ -15,18 +15,28 @@ const authenticateToken = (req, res, next) => {
     }
     
     try {
+        // Validate base64 format first
+        if (!/^[A-Za-z0-9+/=]+$/.test(token)) {
+            console.error('Token is not valid base64:', token);
+            return res.status(403).json({ error: 'Invalid token format' });
+        }
+        
         // Decode our simple base64 token
-        const decoded = JSON.parse(Buffer.from(token, 'base64').toString());
+        const decodedString = Buffer.from(token, 'base64').toString('utf8');
+        console.log('Decoded token string:', decodedString);
+        
+        const decoded = JSON.parse(decodedString);
         if (decoded && decoded.userId) {
             req.user = { id: decoded.userId };
             next();
         } else {
             console.error('Invalid token structure:', decoded);
-            res.status(403).json({ error: 'Invalid token' });
+            res.status(403).json({ error: 'Invalid token structure' });
         }
     } catch (error) {
-        console.error('Token decode error:', error);
-        res.status(403).json({ error: 'Invalid token' });
+        console.error('Token decode error:', error.message);
+        console.error('Raw token received:', token);
+        res.status(403).json({ error: 'Invalid token: ' + error.message });
     }
 };
 

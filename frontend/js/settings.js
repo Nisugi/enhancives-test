@@ -91,6 +91,10 @@ const SettingsModule = (() => {
             const equipment = DataModule.getEquipment();
             const token = AuthModule.getToken();
             
+            console.log('Sync token being sent:', token);
+            console.log('Token type:', typeof token);
+            console.log('Token length:', token?.length);
+            
             const response = await fetch(`${Config.API_URL}/items/sync`, {
                 method: 'POST',
                 headers: {
