@@ -52,15 +52,12 @@ const MarketplaceModule = (() => {
                 
                 <div id="marketplace-listings-tab" class="marketplace-tab-panel active">
                     <div class="panel">
-                        <div style="margin-bottom: 20px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
-                            <button class="btn btn-success" onclick="MarketplaceModule.listAllUnequipped()">
+                        <div style="margin-bottom: 20px; display: flex; gap: 10px; align-items: stretch;">
+                            <button class="btn btn-success" onclick="MarketplaceModule.toggleListAllUnequipped()" style="flex: 1; height: 48px; min-height: 48px;" id="toggleListBtn">
                                 📋 List All Unequipped
                             </button>
-                            <button class="btn btn-warning" onclick="MarketplaceModule.unlistAll()">
-                                📤 Unlist All
-                            </button>
-                            <button class="btn btn-primary" onclick="MarketplaceModule.updateMarketplace()">
-                                🔄 Update Marketplace
+                            <button class="btn btn-primary" onclick="MarketplaceModule.updateMarketplace()" style="flex: 1; height: 48px; min-height: 48px;">
+                                🔄 Update
                             </button>
                         </div>
                         <div id="userListings"></div>
@@ -83,6 +80,7 @@ const MarketplaceModule = (() => {
         `;
         
         renderUserListings();
+        updateToggleButton();
         await loadMarketplace();
     };
     
@@ -346,6 +344,7 @@ const MarketplaceModule = (() => {
         } else {
             UI.showNotification(`${listedCount} unequipped items marked for listing`, 'success');
             renderUserListings();
+            updateToggleButton();
             
             // Refresh items module if visible
             if (typeof ItemsModule !== 'undefined') {
@@ -377,10 +376,47 @@ const MarketplaceModule = (() => {
         
         UI.showNotification(`${listedItems.length} items unlisted from marketplace`, 'success');
         renderUserListings();
+        updateToggleButton();
         
         // Refresh items module if visible
         if (typeof ItemsModule !== 'undefined') {
             ItemsModule.refresh();
+        }
+    };
+    
+    const toggleListAllUnequipped = () => {
+        if (!AuthModule.isAuthenticated()) {
+            UI.showNotification('Please login to manage listings', 'warning');
+            AuthModule.showLoginModal();
+            return;
+        }
+        
+        const items = DataModule.getItems();
+        const listedItems = items.filter(item => item.isListed);
+        
+        // If we have listed items, unlist all. Otherwise, list all unequipped
+        if (listedItems.length > 0) {
+            unlistAll();
+        } else {
+            listAllUnequipped();
+        }
+        
+        updateToggleButton();
+    };
+    
+    const updateToggleButton = () => {
+        const btn = document.getElementById('toggleListBtn');
+        if (!btn) return;
+        
+        const items = DataModule.getItems();
+        const listedItems = items.filter(item => item.isListed);
+        
+        if (listedItems.length > 0) {
+            btn.innerHTML = '📤 Unlist All';
+            btn.className = 'btn btn-warning';
+        } else {
+            btn.innerHTML = '📋 List All Unequipped';
+            btn.className = 'btn btn-success';
         }
     };
     
@@ -415,6 +451,8 @@ const MarketplaceModule = (() => {
         unlistItem,
         listAllUnequipped,
         unlistAll,
+        toggleListAllUnequipped,
+        updateToggleButton,
         switchMarketplaceTab
     };
 })();

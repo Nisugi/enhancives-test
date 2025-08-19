@@ -51,11 +51,12 @@ const StatsModule = (() => {
         const totals = DataModule.calculateTotalEnhancements();
         
         // Calculate statistics
+        const equippedItems = DataModule.getEquippedItems();
         const stats = {
             totalItems: items.length,
-            totalEquipped: DataModule.getEquippedItems().length,
+            totalEquipped: equippedItems.length,
             filledSlots: Object.values(equipment).flat().filter(slot => slot !== null).length,
-            totalEnhancives: items.reduce((sum, item) => sum + (item.targets ? item.targets.length : 0), 0),
+            totalEnhancives: equippedItems.reduce((sum, item) => sum + (item.targets ? item.targets.length : 0), 0),
             cappedStats: Object.entries(totals).filter(([target, value]) => {
                 if (Constants.stats.includes(target)) {
                     return value >= Constants.statCap;

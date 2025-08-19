@@ -160,6 +160,12 @@ const ItemsModule = (() => {
         const items = DataModule.getItems();
         const container = document.getElementById('itemsList');
         
+        // Update total items count
+        const countElement = document.getElementById('totalItemsCount');
+        if (countElement) {
+            countElement.textContent = `${items.length} items`;
+        }
+        
         if (items.length === 0) {
             container.innerHTML = `
                 <div class="empty-state">

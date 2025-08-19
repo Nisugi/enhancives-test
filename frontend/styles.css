@@ -866,6 +866,11 @@ body {
         font-size: 2em;
     }
     
+    /* Hide stats bar on mobile */
+    .stats-bar {
+        display: none;
+    }
+    
     .nav-tabs {
         overflow-x: auto;
         padding: 5px;

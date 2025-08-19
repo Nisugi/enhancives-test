@@ -273,6 +273,16 @@ const EquipmentModule = (() => {
         if (!container) return;
         
         const totals = DataModule.calculateTotalEnhancements();
+        const equippedItems = DataModule.getEquippedItems();
+        const equipment = DataModule.getEquipment();
+        
+        // Calculate equipment stats
+        const equipmentStats = {
+            totalEquipped: equippedItems.length,
+            totalTargets: equippedItems.reduce((sum, item) => sum + (item.targets ? item.targets.length : 0), 0),
+            filledSlots: Object.values(equipment).flat().filter(slot => slot !== null).length,
+            totalEnhancement: Object.values(totals).reduce((sum, value) => sum + Math.abs(value), 0)
+        };
         
         if (Object.keys(totals).length === 0) {
             container.innerHTML = `
@@ -302,6 +312,14 @@ const EquipmentModule = (() => {
         });
         
         container.innerHTML = `
+            <div class="equipment-stats" style="background: var(--light); padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                <div style="display: flex; justify-content: space-between; flex-wrap: wrap; gap: 15px; font-size: 0.9em;">
+                    <span><strong>${equipmentStats.totalEquipped}</strong> items equipped</span>
+                    <span><strong>${equipmentStats.filledSlots}</strong> / 57 slots filled</span>
+                    <span><strong>${equipmentStats.totalTargets}</strong> targets active</span>
+                    <span><strong>+${equipmentStats.totalEnhancement}</strong> total enhancement</span>
+                </div>
+            </div>
             <div class="summary-grid">
                 ${Object.keys(grouped.stats).length > 0 ? `
                     <div class="summary-section">

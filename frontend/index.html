@@ -77,7 +77,10 @@
                     <div id="itemForm"></div>
                 </div>
                 <div class="panel">
-                    <h2 class="section-title">Your Items</h2>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <h2 class="section-title" style="margin: 0;">Your Items</h2>
+                        <span id="totalItemsCount" style="color: var(--gray); font-weight: 600;"></span>
+                    </div>
                     <input type="text" class="search-bar" placeholder="🔍 Search items..." onkeyup="ItemsModule.searchItems(this.value)">
                     <div id="itemsList" class="items-grid"></div>
                 </div>
