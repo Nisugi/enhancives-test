@@ -37,29 +37,37 @@ router.post('/sync', async (req, res) => {
         
         await dbOperation(async (db) => {
             if (db.from) { // Supabase
-                // Clear existing marketplace items for this user
-                if (items.length > 0) {
+                // Always clear existing marketplace items for this user first
+                const username = items.length > 0 ? items[0].username : req.body.username;
+                
+                if (username) {
                     await db
                         .from('marketplace_items')
                         .delete()
-                        .eq('username', items[0]?.username);
+                        .eq('username', username);
 
-                    // Insert new items
-                    const { error } = await db
-                        .from('marketplace_items')
-                        .insert(items);
+                    // Insert new items if any
+                    if (items.length > 0) {
+                        const { error } = await db
+                            .from('marketplace_items')
+                            .insert(items);
 
-                    if (error) throw error;
+                        if (error) throw error;
+                    }
                 }
             } else { // Development mode
-                if (items.length > 0) {
+                const username = items.length > 0 ? items[0].username : req.body.username;
+                
+                if (username) {
                     // Clear existing items for this user
                     db.marketplaceItems = db.marketplaceItems.filter(
-                        item => item.username !== items[0].username
+                        item => item.username !== username
                     );
                     
-                    // Add new items
-                    db.marketplaceItems.push(...items);
+                    // Add new items if any
+                    if (items.length > 0) {
+                        db.marketplaceItems.push(...items);
+                    }
                 }
             }
         });

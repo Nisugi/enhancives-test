@@ -216,16 +216,13 @@ const MarketplaceModule = (() => {
         const items = DataModule.getItems();
         const listedItems = items.filter(item => item.isListed);
         
-        if (listedItems.length === 0) {
-            UI.showNotification('No items marked as available', 'warning');
-            return;
-        }
+        // Always proceed with sync to clear unlisted items from database
+        const currentUser = AuthModule.getCurrentUser();
         
         try {
             UI.showNotification('Updating marketplace...', 'info');
             
             // Add user info to items for backend - only send essential fields
-            const currentUser = AuthModule.getCurrentUser();
             const itemsWithUser = listedItems.map(item => ({
                 id: item.id,
                 name: item.name,
@@ -244,14 +241,22 @@ const MarketplaceModule = (() => {
                     'Content-Type': 'application/json',
                     ...AuthModule.getAuthHeaders()
                 },
-                body: JSON.stringify({ items: itemsWithUser })
+                body: JSON.stringify({ 
+                    items: itemsWithUser,
+                    username: currentUser.username // Always send username for deletion
+                })
             });
             
             const data = await response.json();
             
             if (data.success) {
-                UI.showNotification(`${listedItems.length} items updated in marketplace!`, 'success');
-                await loadMarketplace();
+                if (listedItems.length === 0) {
+                    UI.showNotification('All items removed from marketplace!', 'success');
+                } else {
+                    UI.showNotification(`${listedItems.length} items updated in marketplace!`, 'success');
+                }
+                await loadMarketplace(); // Refresh marketplace to show updated state
+                renderUserListings(); // Refresh user listings
             } else {
                 UI.showNotification('Update failed: ' + (data.error || 'Unknown error'), 'error');
             }

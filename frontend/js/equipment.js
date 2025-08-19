@@ -1,9 +1,37 @@
 // ==================== EQUIPMENT MODULE ====================
 const EquipmentModule = (() => {
     let showAllItems = {}; // Track which slots have "show all" enabled
+    let showMarketplaceItems = {}; // Track which slots show marketplace items
+    let marketplaceItems = []; // Cache marketplace items
     
     const init = () => {
+        loadMarketplaceItems();
         renderEquipmentSlots();
+    };
+    
+    const loadMarketplaceItems = async () => {
+        if (!AuthModule.isAuthenticated()) {
+            marketplaceItems = [];
+            return;
+        }
+        
+        try {
+            const response = await fetch(`${Config.API_URL}/marketplace/items`, {
+                headers: AuthModule.getAuthHeaders()
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                const currentUser = AuthModule.getCurrentUser();
+                // Exclude user's own items
+                marketplaceItems = (data || []).filter(item => item.username !== currentUser.username);
+            } else {
+                marketplaceItems = [];
+            }
+        } catch (error) {
+            console.error('Failed to load marketplace items:', error);
+            marketplaceItems = [];
+        }
     };
     
     const renderEquipmentSlots = () => {
@@ -59,18 +87,39 @@ const EquipmentModule = (() => {
                 const currentItem = equipment[location] && equipment[location][i];
                 const item = currentItem ? items.find(item => item.id === currentItem) : null;
                 
-                // Filter items for this location unless "show all" is checked
-                let availableItems = items;
-                if (!showAllItems[slotKey]) {
-                    // Special handling for hand slots
-                    if (location === 'Right Hand' || location === 'Left Hand') {
-                        availableItems = items.filter(item => 
-                            item.location === 'Weapon' || 
-                            item.location === 'Shield' || 
-                            item.location === 'Off-Hand'
-                        );
-                    } else {
-                        availableItems = items.filter(item => item.location === location);
+                // Determine which items to show based on checkboxes
+                let availableItems;
+                
+                if (showMarketplaceItems[slotKey]) {
+                    // Show marketplace items
+                    availableItems = [...marketplaceItems];
+                    
+                    if (!showAllItems[slotKey]) {
+                        // Filter marketplace items by location
+                        if (location === 'Right Hand' || location === 'Left Hand') {
+                            availableItems = availableItems.filter(item => 
+                                item.location === 'Weapon' || 
+                                item.location === 'Shield' || 
+                                item.location === 'Off-Hand'
+                            );
+                        } else {
+                            availableItems = availableItems.filter(item => item.location === location);
+                        }
+                    }
+                } else {
+                    // Show user's own items
+                    availableItems = items;
+                    if (!showAllItems[slotKey]) {
+                        // Special handling for hand slots
+                        if (location === 'Right Hand' || location === 'Left Hand') {
+                            availableItems = items.filter(item => 
+                                item.location === 'Weapon' || 
+                                item.location === 'Shield' || 
+                                item.location === 'Off-Hand'
+                            );
+                        } else {
+                            availableItems = items.filter(item => item.location === location);
+                        }
                     }
                 }
                 
@@ -99,7 +148,8 @@ const EquipmentModule = (() => {
                     return {
                         ...item,
                         totalValue,
-                        enhanciveSummary: summary
+                        enhanciveSummary: summary,
+                        isMarketplaceItem: showMarketplaceItems[slotKey] // Flag to identify marketplace items
                     };
                 });
                 
@@ -139,7 +189,9 @@ const EquipmentModule = (() => {
                                         displayText += ` - ${availItem.enhanciveSummary}`;
                                     }
                                 }
-                                if (isEquippedElsewhere) {
+                                if (availItem.isMarketplaceItem) {
+                                    displayText += ` [${availItem.username}]`;
+                                } else if (isEquippedElsewhere) {
                                     displayText += ' (equipped)';
                                 }
                                 
@@ -159,6 +211,13 @@ const EquipmentModule = (() => {
                                    onchange="EquipmentModule.toggleShowAll('${slotKey}')">
                             All
                         </label>
+                        <label style="display: flex; align-items: center; gap: 5px; font-size: 0.9em;">
+                            <input type="checkbox" 
+                                   ${showMarketplaceItems[slotKey] ? 'checked' : ''}
+                                   onchange="EquipmentModule.toggleMarketplace('${slotKey}')"
+                                   ${!AuthModule.isAuthenticated() ? 'disabled' : ''}>
+                            Market
+                        </label>
                         <div class="slot-status ${item ? 'filled' : 'empty'}">${item ? 'Filled' : 'Empty'}</div>
                         <button class="unequip-btn ${item ? 'active' : ''}" 
                                 onclick="EquipmentModule.unequipItem('${location}', ${i})">✕</button>
@@ -172,6 +231,11 @@ const EquipmentModule = (() => {
     
     const toggleShowAll = (slotKey) => {
         showAllItems[slotKey] = !showAllItems[slotKey];
+        renderEquipmentSlots();
+    };
+    
+    const toggleMarketplace = (slotKey) => {
+        showMarketplaceItems[slotKey] = !showMarketplaceItems[slotKey];
         renderEquipmentSlots();
     };
     
@@ -268,6 +332,8 @@ const EquipmentModule = (() => {
         refresh: renderEquipmentSlots,
         equipItem,
         unequipItem,
-        toggleShowAll
+        toggleShowAll,
+        toggleMarketplace,
+        loadMarketplaceItems
     };
 })();
