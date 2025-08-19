@@ -396,7 +396,7 @@ body {
 
 .slot-row {
     display: grid;
-    grid-template-columns: 110px 90px 1fr 80px 60px 35px;
+    grid-template-columns: 100px 80px 1fr 100px 60px 35px;
     gap: 0;
     padding: 2px 4px;
     background: #f8f9fa;
@@ -404,6 +404,13 @@ body {
     align-items: center;
     transition: all 0.3s;
 }
+
+.slot-row > :nth-child(1) { margin-right: 0; }     /* Location */
+.slot-row > :nth-child(2) { margin-right: 0; }     /* Slot number */  
+.slot-row > :nth-child(3) { margin-right: 2px; }   /* Dropdown */
+.slot-row > :nth-child(4) { margin-right: 0; }     /* Checkboxes */
+.slot-row > :nth-child(5) { margin-right: 0; }     /* Status */
+.slot-row > :nth-child(6) { margin-right: 0; }     /* Unequip button */
 
 .slot-row:hover {
     background: #e2e8f0;

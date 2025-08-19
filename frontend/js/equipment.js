@@ -212,19 +212,21 @@ const EquipmentModule = (() => {
                                 `;
                             }).join('')}
                         </select>
-                        <label style="display: flex; align-items: center; gap: 5px; font-size: 0.9em;">
-                            <input type="checkbox" 
-                                   ${showAllItems[slotKey] ? 'checked' : ''}
-                                   onchange="EquipmentModule.toggleShowAll('${slotKey}')">
-                            All
-                        </label>
-                        <label style="display: flex; align-items: center; gap: 5px; font-size: 0.9em;">
-                            <input type="checkbox" 
-                                   ${showMarketplaceItems[slotKey] ? 'checked' : ''}
-                                   onchange="EquipmentModule.toggleMarketplace('${slotKey}')"
-                                   ${!AuthModule.isAuthenticated() ? 'disabled' : ''}>
-                            Market
-                        </label>
+                        <div style="display: flex; gap: 8px; margin-left: 2px;">
+                            <label style="display: flex; align-items: center; gap: 2px; font-size: 0.9em;">
+                                <input type="checkbox" 
+                                       ${showAllItems[slotKey] ? 'checked' : ''}
+                                       onchange="EquipmentModule.toggleShowAll('${slotKey}')">
+                                All
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 2px; font-size: 0.9em;">
+                                <input type="checkbox" 
+                                       ${showMarketplaceItems[slotKey] ? 'checked' : ''}
+                                       onchange="EquipmentModule.toggleMarketplace('${slotKey}')"
+                                       ${!AuthModule.isAuthenticated() ? 'disabled' : ''}>
+                                Market
+                            </label>
+                        </div>
                         <div class="slot-status ${item ? 'filled' : 'empty'}">${item ? 'Filled' : 'Empty'}</div>
                         <button class="unequip-btn ${item ? 'active' : ''}" 
                                 onclick="EquipmentModule.unequipItem('${location}', ${i})">✕</button>
