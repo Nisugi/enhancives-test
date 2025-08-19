@@ -112,7 +112,7 @@ const MarketplaceModule = (() => {
         container.innerHTML = '<div class="loading">Loading marketplace...</div>';
         
         try {
-            const response = await fetch(`${Config.API_URL}/marketplace`, {
+            const response = await fetch(`${Config.API_URL}/marketplace/items`, {
                 headers: AuthModule.getAuthHeaders()
             });
             
@@ -224,7 +224,7 @@ const MarketplaceModule = (() => {
         try {
             UI.showNotification('Updating marketplace...', 'info');
             
-            const response = await fetch(`${Config.API_URL}/marketplace/update`, {
+            const response = await fetch(`${Config.API_URL}/marketplace/sync`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

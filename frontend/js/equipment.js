@@ -1,5 +1,7 @@
 // ==================== EQUIPMENT MODULE ====================
 const EquipmentModule = (() => {
+    let showAllItems = {}; // Track which slots have "show all" enabled
+    
     const init = () => {
         renderEquipmentSlots();
     };
@@ -14,22 +16,65 @@ const EquipmentModule = (() => {
         
         container.innerHTML = Object.entries(Constants.wearLocations).map(([location, count]) => {
             return Array.from({length: count}, (_, i) => {
+                const slotKey = `${location}_${i}`;
                 const currentItem = equipment[location] && equipment[location][i];
                 const item = currentItem ? items.find(item => item.id === currentItem) : null;
+                
+                // Filter items for this location unless "show all" is checked
+                let availableItems = items;
+                if (!showAllItems[slotKey]) {
+                    // Special handling for hand slots
+                    if (location === 'Right Hand' || location === 'Left Hand') {
+                        availableItems = items.filter(item => 
+                            item.location === 'Weapon' || 
+                            item.location === 'Shield' || 
+                            item.location === 'Off-Hand'
+                        );
+                    } else {
+                        availableItems = items.filter(item => item.location === location);
+                    }
+                }
+                
+                const slotNum = ++slotIndex;
+                const slotType = slotNum > 50 ? 'platinum' : slotNum > 40 ? 'premium' : '';
                 
                 return `
                     <div class="slot-row">
                         <div class="slot-location">${location}</div>
-                        <div class="slot-number ${slotIndex >= 40 ? 'premium' : slotIndex >= 50 ? 'platinum' : ''}">${++slotIndex}</div>
+                        <div class="slot-number ${slotType}">
+                            ${slotNum}
+                            ${count > 1 ? ` (${i + 1}/${count})` : ''}
+                        </div>
                         <select class="slot-item-select ${item ? 'has-item' : ''}" 
                                 onchange="EquipmentModule.equipItem('${location}', ${i}, this.value)">
                             <option value="">Empty</option>
-                            ${items.map(item => `
-                                <option value="${item.id}" ${currentItem === item.id ? 'selected' : ''}>
-                                    ${item.name}
-                                </option>
-                            `).join('')}
+                            ${availableItems.map(availItem => {
+                                // Check if item is already equipped elsewhere
+                                let isEquippedElsewhere = false;
+                                for (const [loc, slots] of Object.entries(equipment)) {
+                                    if (slots && slots.includes(availItem.id)) {
+                                        if (!(loc === location && slots[i] === availItem.id)) {
+                                            isEquippedElsewhere = true;
+                                            break;
+                                        }
+                                    }
+                                }
+                                
+                                return `
+                                    <option value="${availItem.id}" 
+                                            ${currentItem === availItem.id ? 'selected' : ''}
+                                            ${isEquippedElsewhere ? 'disabled' : ''}>
+                                        ${availItem.name}${isEquippedElsewhere ? ' (equipped)' : ''}
+                                    </option>
+                                `;
+                            }).join('')}
                         </select>
+                        <label style="display: flex; align-items: center; gap: 5px; font-size: 0.9em;">
+                            <input type="checkbox" 
+                                   ${showAllItems[slotKey] ? 'checked' : ''}
+                                   onchange="EquipmentModule.toggleShowAll('${slotKey}')">
+                            All
+                        </label>
                         <div class="slot-status ${item ? 'filled' : 'empty'}">${item ? 'Filled' : 'Empty'}</div>
                         <button class="unequip-btn ${item ? 'active' : ''}" 
                                 onclick="EquipmentModule.unequipItem('${location}', ${i})">✕</button>
@@ -39,6 +84,11 @@ const EquipmentModule = (() => {
         }).join('');
         
         updateEquippedSummary();
+    };
+    
+    const toggleShowAll = (slotKey) => {
+        showAllItems[slotKey] = !showAllItems[slotKey];
+        renderEquipmentSlots();
     };
     
     const equipItem = (location, slotIndex, itemId) => {
@@ -71,15 +121,60 @@ const EquipmentModule = (() => {
             return;
         }
         
+        // Group by category
+        const grouped = {
+            stats: {},
+            skills: {},
+            resources: {}
+        };
+        
+        Object.entries(totals).forEach(([target, value]) => {
+            if (Constants.stats.includes(target)) {
+                grouped.stats[target] = value;
+            } else if (Constants.resources.includes(target)) {
+                grouped.resources[target] = value;
+            } else {
+                grouped.skills[target] = value;
+            }
+        });
+        
         container.innerHTML = `
-            <div class="summary-title">Active Enhancements</div>
             <div class="summary-grid">
-                ${Object.entries(totals).map(([target, value]) => `
-                    <div class="summary-item">
-                        <span class="summary-target">${target}</span>
-                        <span class="summary-value">+${value}</span>
+                ${Object.keys(grouped.stats).length > 0 ? `
+                    <div class="summary-section">
+                        <h4 style="color: var(--primary); margin-bottom: 10px;">Stats</h4>
+                        ${Object.entries(grouped.stats).map(([target, value]) => `
+                            <div class="summary-item">
+                                <span class="summary-target">${target}</span>
+                                <span class="summary-value">+${value}</span>
+                            </div>
+                        `).join('')}
                     </div>
-                `).join('')}
+                ` : ''}
+                
+                ${Object.keys(grouped.skills).length > 0 ? `
+                    <div class="summary-section">
+                        <h4 style="color: var(--primary); margin-bottom: 10px;">Skills</h4>
+                        ${Object.entries(grouped.skills).map(([target, value]) => `
+                            <div class="summary-item">
+                                <span class="summary-target">${target}</span>
+                                <span class="summary-value">+${value}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                ` : ''}
+                
+                ${Object.keys(grouped.resources).length > 0 ? `
+                    <div class="summary-section">
+                        <h4 style="color: var(--primary); margin-bottom: 10px;">Resources</h4>
+                        ${Object.entries(grouped.resources).map(([target, value]) => `
+                            <div class="summary-item">
+                                <span class="summary-target">${target}</span>
+                                <span class="summary-value">+${value}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                ` : ''}
             </div>
         `;
     };
@@ -88,6 +183,7 @@ const EquipmentModule = (() => {
         init,
         refresh: renderEquipmentSlots,
         equipItem,
-        unequipItem
+        unequipItem,
+        toggleShowAll
     };
 })();

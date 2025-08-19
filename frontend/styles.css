@@ -394,7 +394,7 @@ body {
 
 .slot-row {
     display: grid;
-    grid-template-columns: 120px 120px 1fr 80px 40px;
+    grid-template-columns: 120px 100px 1fr 60px 80px 40px;
     gap: 10px;
     padding: 10px;
     background: #f8f9fa;

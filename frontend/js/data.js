@@ -102,11 +102,18 @@ const DataModule = (() => {
         },
         
         equipItem: (itemId, location, slotIndex) => {
+            // Ensure equipment is initialized
+            if (!equipment[location]) {
+                equipment[location] = Array(Constants.wearLocations[location] || 1).fill(null);
+            }
+            
             // Unequip from any other slot first
             for (const loc in equipment) {
-                equipment[loc] = equipment[loc].map(slot => 
-                    slot === itemId ? null : slot
-                );
+                if (equipment[loc]) {
+                    equipment[loc] = equipment[loc].map(slot => 
+                        slot === itemId ? null : slot
+                    );
+                }
             }
             
             // Equip in new slot

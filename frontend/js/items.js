@@ -226,11 +226,21 @@ const ItemsModule = (() => {
 
         console.log('Editing item:', item);
         
+        // Ensure form is rendered first
+        if (!document.getElementById('itemName')) {
+            renderForm();
+        }
+        
         // Populate form with item data
-        document.getElementById('itemName').value = item.name;
-        document.getElementById('itemLocation').value = item.location;
-        document.getElementById('itemPermanence').value = item.permanence;
-        document.getElementById('itemNotes').value = item.notes || '';
+        const nameField = document.getElementById('itemName');
+        const locationField = document.getElementById('itemLocation');
+        const permanenceField = document.getElementById('itemPermanence');
+        const notesField = document.getElementById('itemNotes');
+        
+        if (nameField) nameField.value = item.name;
+        if (locationField) locationField.value = item.location;
+        if (permanenceField) permanenceField.value = item.permanence;
+        if (notesField) notesField.value = item.notes || '';
         
         // Clear and populate targets
         const container = document.getElementById('targetsContainer');
