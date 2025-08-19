@@ -3,8 +3,11 @@ const ItemsModule = (() => {
     let targetCount = 1;
     
     const init = () => {
-        renderForm();
-        renderItemsList();
+        // Use setTimeout to ensure DOM is ready
+        setTimeout(() => {
+            renderForm();
+            renderItemsList();
+        }, 0);
     };
     
     const renderForm = () => {
@@ -188,13 +191,13 @@ const ItemsModule = (() => {
                 </div>` : ''}
 
                 <div style="margin-top: 15px; display: flex; gap: 10px; flex-wrap: wrap;">
-                    <button class="btn btn-primary" onclick="ItemsModule.editItem(${item.id})" style="padding: 8px 16px; font-size: 0.9em;">Edit</button>
                     <button class="btn ${item.isListed ? 'btn-warning' : 'btn-success'}" 
                             onclick="ItemsModule.toggleListed(${item.id})" 
                             style="padding: 8px 16px; font-size: 0.9em;">
-                        ${item.isListed ? '📤 Unlisted' : '🏪 List for Trade'}
+                        ${item.isListed ? '📤 Unlist' : '🏪 List'}
                     </button>
-                    <button class="btn btn-danger" onclick="ItemsModule.deleteItem(${item.id})">Delete</button>
+                    <button class="btn btn-danger" onclick="ItemsModule.deleteItem(${item.id})" style="padding: 8px 16px; font-size: 0.9em;">Delete</button>
+                    <button class="btn btn-primary" onclick="ItemsModule.editItem(${item.id})" style="padding: 8px 16px; font-size: 0.9em;">Edit</button>
                 </div>
             </div>
         `).join('');

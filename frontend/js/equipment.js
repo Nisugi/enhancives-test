@@ -35,6 +35,38 @@ const EquipmentModule = (() => {
                     }
                 }
                 
+                // Calculate total enhancive value and create summary for each item
+                availableItems = availableItems.map(item => {
+                    let totalValue = 0;
+                    let summary = '';
+                    
+                    if (item.targets && item.targets.length > 0) {
+                        const summaryParts = item.targets.map(target => {
+                            let value = target.amount;
+                            // Apply same calculation logic as DataModule
+                            if (Constants.stats.includes(target.target)) {
+                                if (target.type === 'Base') {
+                                    value = target.amount * 1;
+                                } else if (target.type === 'Bonus') {
+                                    value = target.amount * 2;
+                                }
+                            }
+                            totalValue += value;
+                            return `${target.target} +${target.amount} ${target.type.toLowerCase()}`;
+                        });
+                        summary = summaryParts.join(', ');
+                    }
+                    
+                    return {
+                        ...item,
+                        totalValue,
+                        enhanciveSummary: summary
+                    };
+                });
+                
+                // Sort by total enhancive value (descending)
+                availableItems.sort((a, b) => b.totalValue - a.totalValue);
+                
                 const slotNum = ++slotIndex;
                 const slotType = slotNum > 50 ? 'platinum' : slotNum > 40 ? 'premium' : '';
                 
@@ -60,11 +92,24 @@ const EquipmentModule = (() => {
                                     }
                                 }
                                 
+                                // Create display text with total and summary
+                                let displayText = availItem.name;
+                                if (availItem.totalValue > 0) {
+                                    displayText = `(${availItem.totalValue}) ${availItem.name}`;
+                                    if (availItem.enhanciveSummary) {
+                                        displayText += ` - ${availItem.enhanciveSummary}`;
+                                    }
+                                }
+                                if (isEquippedElsewhere) {
+                                    displayText += ' (equipped)';
+                                }
+                                
                                 return `
                                     <option value="${availItem.id}" 
                                             ${currentItem === availItem.id ? 'selected' : ''}
-                                            ${isEquippedElsewhere ? 'disabled' : ''}>
-                                        ${availItem.name}${isEquippedElsewhere ? ' (equipped)' : ''}
+                                            ${isEquippedElsewhere ? 'disabled' : ''}
+                                            title="${displayText}">
+                                        ${displayText}
                                     </option>
                                 `;
                             }).join('')}
@@ -94,14 +139,14 @@ const EquipmentModule = (() => {
     const equipItem = (location, slotIndex, itemId) => {
         DataModule.equipItem(parseInt(itemId) || null, location, slotIndex);
         renderEquipmentSlots();
-        StatsModule.updateStats();
+        if (typeof StatsModule !== 'undefined') StatsModule.updateStats();
         if (typeof TotalsModule !== 'undefined') TotalsModule.refresh();
     };
     
     const unequipItem = (location, slotIndex) => {
         DataModule.unequipItem(location, slotIndex);
         renderEquipmentSlots();
-        StatsModule.updateStats();
+        if (typeof StatsModule !== 'undefined') StatsModule.updateStats();
         if (typeof TotalsModule !== 'undefined') TotalsModule.refresh();
     };
     

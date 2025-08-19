@@ -116,16 +116,16 @@ const MarketplaceModule = (() => {
                 headers: AuthModule.getAuthHeaders()
             });
             
-            const data = await response.json();
-            
-            if (data.success) {
-                marketplaceItems = data.items;
+            if (response.ok) {
+                const data = await response.json();
+                marketplaceItems = data || [];
                 renderMarketplaceItems();
             } else {
+                const errorData = await response.json().catch(() => ({}));
                 container.innerHTML = `
                     <div class="empty-state">
                         <p>Failed to load marketplace</p>
-                        <p style="color: var(--danger);">${data.error || 'Unknown error'}</p>
+                        <p style="color: var(--danger);">${errorData.error || 'Server error'}</p>
                     </div>
                 `;
             }
@@ -224,13 +224,22 @@ const MarketplaceModule = (() => {
         try {
             UI.showNotification('Updating marketplace...', 'info');
             
+            // Add user info to items for backend
+            const currentUser = AuthModule.getCurrentUser();
+            const itemsWithUser = listedItems.map(item => ({
+                ...item,
+                user_id: currentUser.id,
+                username: currentUser.username,
+                available: true
+            }));
+            
             const response = await fetch(`${Config.API_URL}/marketplace/sync`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     ...AuthModule.getAuthHeaders()
                 },
-                body: JSON.stringify({ items: listedItems })
+                body: JSON.stringify({ items: itemsWithUser })
             });
             
             const data = await response.json();
