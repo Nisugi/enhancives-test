@@ -220,7 +220,7 @@ const DataModule = (() => {
                         // Refresh all displays
                         ItemsModule.refresh();
                         EquipmentModule.refresh();
-                        StatsModule.updateStats();
+                        if (typeof StatsModule !== 'undefined') StatsModule.updateStats();
                         TotalsModule.refresh();
                         
                         UI.showNotification('Data imported successfully!');

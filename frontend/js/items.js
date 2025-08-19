@@ -187,8 +187,13 @@ const ItemsModule = (() => {
                     <button onclick="ItemsModule.editNotes(${item.id})" style="float: right; background: none; border: none; color: var(--primary); cursor: pointer;">✏️</button>
                 </div>` : ''}
 
-                <div style="margin-top: 15px; display: flex; gap: 10px;">
+                <div style="margin-top: 15px; display: flex; gap: 10px; flex-wrap: wrap;">
                     <button class="btn btn-primary" onclick="ItemsModule.editItem(${item.id})" style="padding: 8px 16px; font-size: 0.9em;">Edit</button>
+                    <button class="btn ${item.isListed ? 'btn-warning' : 'btn-success'}" 
+                            onclick="ItemsModule.toggleListed(${item.id})" 
+                            style="padding: 8px 16px; font-size: 0.9em;">
+                        ${item.isListed ? '📤 Unlisted' : '🏪 List for Trade'}
+                    </button>
                     <button class="btn btn-danger" onclick="ItemsModule.deleteItem(${item.id})">Delete</button>
                 </div>
             </div>
@@ -308,6 +313,26 @@ const ItemsModule = (() => {
         }
     };
     
+    const toggleListed = (id) => {
+        const item = DataModule.getItem(id);
+        if (item) {
+            item.isListed = !item.isListed;
+            DataModule.editItem(id, item);
+            renderItemsList();
+            
+            if (item.isListed) {
+                UI.showNotification(`${item.name} listed for marketplace`, 'success');
+            } else {
+                UI.showNotification(`${item.name} unlisted from marketplace`, 'info');
+            }
+            
+            // Update marketplace listings if visible
+            if (typeof MarketplaceModule !== 'undefined' && document.getElementById('userListings')) {
+                MarketplaceModule.refresh();
+            }
+        }
+    };
+    
     return {
         init,
         refresh: () => {
@@ -320,6 +345,7 @@ const ItemsModule = (() => {
         updateItem,
         editNotes,
         deleteItem,
-        searchItems
+        searchItems,
+        toggleListed
     };
 })();

@@ -24,6 +24,8 @@ const UI = (() => {
             SettingsModule.refresh();
         } else if (tabName === 'items') {
             ItemsModule.refresh();
+        } else if (tabName === 'marketplace') {
+            MarketplaceModule.refresh();
         }
     };
     

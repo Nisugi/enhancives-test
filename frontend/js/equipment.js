@@ -1,628 +1,93 @@
-// Equipment management module
-const EquipmentModule = {
-    // Initialize equipment tab
-    init() {
-        this.refresh();
-    },
+// ==================== EQUIPMENT MODULE ====================
+const EquipmentModule = (() => {
+    const init = () => {
+        renderEquipmentSlots();
+    };
     
-    // Refresh equipment display
-    refresh() {
-        const container = document.getElementById('equipmentTab');
+    const renderEquipmentSlots = () => {
+        const container = document.getElementById('equipmentSlots');
         if (!container) return;
         
-        container.innerHTML = `
-            <div class="equipment-layout">
-                <div class="panel">
-                    <h2 class="section-title">Equipment Slots (57 Total)</h2>
-                    <div id="equipmentSlots" class="slots-container"></div>
-                </div>
-                <div class="panel">
-                    <h2 class="section-title">Equipped Enhancives Summary</h2>
-                    <div id="equippedSummary" class="equipped-summary"></div>
-                </div>
-            </div>
-        `;
+        const equipment = DataModule.getEquipment();
+        const items = DataModule.getItems();
+        let slotIndex = 0;
         
-        this.renderSlots();
-        this.renderSummary();
-    },
-    
-    renderSlots() {
-        const equipment = DataManager.equipment;
-        const items = DataManager.items;
-        const container = document.getElementById('equipmentSlots');
-        
-        let html = '';
-        
-        for (const [location, slots] of Object.entries(equipment)) {
-            const slotCount = slots.length;
-            
-            for (let i = 0; i < slotCount; i++) {
-                const equippedId = slots[i];
-                const equippedItem = equippedId ? items.find(item => item.id === equippedId) : null;
+        container.innerHTML = Object.entries(Constants.wearLocations).map(([location, count]) => {
+            return Array.from({length: count}, (_, i) => {
+                const currentItem = equipment[location] && equipment[location][i];
+                const item = currentItem ? items.find(item => item.id === currentItem) : null;
                 
-                // Determine slot label
-                let slotLabel = slotCount > 1 ? `Slot ${i + 1}` : 'Single';
-                let slotClass = '';
-                
-                // Premium/Platinum slot logic
-                if (slotCount > 1) {
-                    if ((location === "Neck" && i >= 3) ||
-                        ((location === "Ear" || location === "Ears") && i >= 1) ||
-                        ((location === "Wrist" || location === "Finger") && i >= 2)) {
-                        if (i === slotCount - 2) {
-                            slotLabel += " (Premium)";
-                            slotClass = 'premium';
-                        } else if (i === slotCount - 1) {
-                            slotLabel += " (Platinum)";
-                            slotClass = 'platinum';
-                        }
-                    }
-                }
-                
-                // Get available items for this location
-                let availableItems;
-                if (location === "Right Hand" || location === "Left Hand") {
-                    availableItems = items.filter(item => 
-                        item.location === "Weapon" || 
-                        item.location === "Shield" || 
-                        item.location === "Off-Hand"
-                    );
-                } else {
-                    availableItems = items.filter(item => item.location === location);
-                }
-                
-                html += this.renderSlotRow(location, i, slotLabel, slotClass, equippedItem, availableItems);
-            }
-        }
-        
-        container.innerHTML = html;
-    },
-    
-    renderSlotRow(location, slotIndex, slotLabel, slotClass, equippedItem, availableItems) {
-        // Calculate total bonus for sorting
-        availableItems = availableItems.map(item => {
-            const totalBonus = item.targets.reduce((sum, t) => {
-                let value = t.amount;
-                if (stats.includes(t.target) && t.type === 'Bonus') {
-                    value = t.amount * 2;
-                }
-                return sum + value;
-            }, 0);
-            return { ...item, totalBonus };
-        }).sort((a, b) => b.totalBonus - a.totalBonus);
-        
-        const options = availableItems.map(item => {
-            const isEquipped = Object.values(DataManager.equipment).some(slots => 
-                slots.includes(item.id)
-            );
-            const disabled = isEquipped && item.id !== (equippedItem ? equippedItem.id : null);
-            return `<option value="${item.id}" ${equippedItem && item.id === equippedItem.id ? 'selected' : ''} ${disabled ? 'disabled' : ''}>
-                (${item.totalBonus}) ${item.name} ${disabled ? '(Equipped)' : ''}
-            </option>`;
+                return `
+                    <div class="slot-row">
+                        <div class="slot-location">${location}</div>
+                        <div class="slot-number ${slotIndex >= 40 ? 'premium' : slotIndex >= 50 ? 'platinum' : ''}">${++slotIndex}</div>
+                        <select class="slot-item-select ${item ? 'has-item' : ''}" 
+                                onchange="EquipmentModule.equipItem('${location}', ${i}, this.value)">
+                            <option value="">Empty</option>
+                            ${items.map(item => `
+                                <option value="${item.id}" ${currentItem === item.id ? 'selected' : ''}>
+                                    ${item.name}
+                                </option>
+                            `).join('')}
+                        </select>
+                        <div class="slot-status ${item ? 'filled' : 'empty'}">${item ? 'Filled' : 'Empty'}</div>
+                        <button class="unequip-btn ${item ? 'active' : ''}" 
+                                onclick="EquipmentModule.unequipItem('${location}', ${i})">✕</button>
+                    </div>
+                `;
+            }).join('');
         }).join('');
         
-        return `
-            <div class="slot-row">
-                <div class="slot-location">${location}</div>
-                <div class="slot-number ${slotClass}">${slotLabel}</div>
-                <select class="slot-item-select ${equippedItem ? 'has-item' : ''}"
-                        onchange="EquipmentModule.equipItem(this.value, '${location}', ${slotIndex})">
-                    <option value="">-- Empty --</option>
-                    ${options}
-                </select>
-                <div class="slot-status ${equippedItem ? 'filled' : 'empty'}">
-                    ${equippedItem ? 'Filled' : 'Empty'}
-                </div>
-                <button class="unequip-btn ${equippedItem ? 'active' : ''}" 
-                        onclick="EquipmentModule.unequip('${location}', ${slotIndex})"
-                        style="${equippedItem ? '' : 'visibility: hidden;'}">
-                    ✕
-                </button>
-            </div>
-        `;
-    },
+        updateEquippedSummary();
+    };
     
-    equipItem(itemId, location, slotIndex) {
-        if (itemId === "") {
-            DataManager.equipment[location][slotIndex] = null;
-        } else {
-            // Unequip from any other slot first
-            for (const loc in DataManager.equipment) {
-                DataManager.equipment[loc] = DataManager.equipment[loc].map(slot => 
-                    slot === parseInt(itemId) ? null : slot
-                );
-            }
-            // Equip in new slot
-            DataManager.equipment[location][slotIndex] = parseInt(itemId);
-        }
+    const equipItem = (location, slotIndex, itemId) => {
+        DataModule.equipItem(parseInt(itemId) || null, location, slotIndex);
+        renderEquipmentSlots();
+        StatsModule.updateStats();
+        if (typeof TotalsModule !== 'undefined') TotalsModule.refresh();
+    };
+    
+    const unequipItem = (location, slotIndex) => {
+        DataModule.unequipItem(location, slotIndex);
+        renderEquipmentSlots();
+        StatsModule.updateStats();
+        if (typeof TotalsModule !== 'undefined') TotalsModule.refresh();
+    };
+    
+    const updateEquippedSummary = () => {
+        const container = document.getElementById('equippedSummary');
+        if (!container) return;
         
-        DataManager.saveToStorage();
-        this.refresh();
-        App.updateStatistics();
-        TotalsModule.refresh();
-    },
-    
-    unequip(location, slotIndex) {
-        DataManager.equipment[location][slotIndex] = null;
-        DataManager.saveToStorage();
-        this.refresh();
-        App.updateStatistics();
-        TotalsModule.refresh();
-    },
-
-    // Generate HTML for equipment tab
-    generateEquipmentHTML() {
-        return `
-            <div class="equipment-header">
-                <h2>Equipment Overview</h2>
-                <div class="equipment-actions">
-                    <button class="btn btn-secondary" onclick="EquipmentModule.unequipAll()">Unequip All</button>
-                    <button class="btn btn-primary" onclick="EquipmentModule.showOptimizationModal()">Optimize Equipment</button>
-                </div>
-            </div>
-            
-            <div class="equipment-layout">
-                <div class="equipment-slots">
-                    ${this.generateEquipmentSlots()}
-                </div>
-                
-                <div class="enhancement-summary">
-                    <h3>Enhancement Summary</h3>
-                    ${this.generateEnhancementSummary()}
-                </div>
-            </div>
-            
-            <div class="available-items">
-                <h3>Available Items for Equipment</h3>
-                ${this.generateAvailableItems()}
-            </div>
-        `;
-    },
-    
-    // Generate equipment slots grid
-    generateEquipmentSlots() {
-        return `
-            <div class="slots-grid">
-                ${EQUIPMENT_SLOTS.map(slot => this.generateSlotCard(slot)).join('')}
-            </div>
-        `;
-    },
-    
-    // Generate individual slot card
-    generateSlotCard(slot) {
-        const item = DataManager.equipment[slot];
-        
-        if (item) {
-            const enhancivesList = item.enhancives && item.enhancives.length > 0 
-                ? item.enhancives.map(enh => `<span class="enhancement-tag">${enh.target}: +${enh.amount}</span>`).join('')
-                : '<span class="no-enhancives">No enhancives</span>';
-            
-            return `
-                <div class="slot-card equipped" data-slot="${slot}">
-                    <div class="slot-header">
-                        <h4>${slot}</h4>
-                        <button class="btn btn-danger btn-sm" onclick="EquipmentModule.unequipItem('${slot}')">Unequip</button>
-                    </div>
-                    <div class="equipped-item">
-                        <div class="item-name">${item.name}</div>
-                        <div class="item-type">${item.permanence}</div>
-                        <div class="enhancives">
-                            ${enhancivesList}
-                        </div>
-                        ${item.notes ? `<div class="item-notes">${item.notes}</div>` : ''}
-                    </div>
-                </div>
-            `;
-        } else {
-            return `
-                <div class="slot-card empty" data-slot="${slot}">
-                    <div class="slot-header">
-                        <h4>${slot}</h4>
-                    </div>
-                    <div class="empty-slot">
-                        <span>Empty</span>
-                        <button class="btn btn-secondary btn-sm" onclick="EquipmentModule.showItemSelectionModal('${slot}')">Equip Item</button>
-                    </div>
-                </div>
-            `;
-        }
-    },
-    
-    // Generate enhancement summary
-    generateEnhancementSummary() {
-        const totals = DataManager.calculateTotalEnhancements();
+        const totals = DataModule.calculateTotalEnhancements();
         
         if (Object.keys(totals).length === 0) {
-            return '<p class="no-enhancements">No active enhancements</p>';
+            container.innerHTML = `
+                <div class="empty-state">
+                    <h3>No items equipped</h3>
+                    <p>Equip items to see enhancement totals</p>
+                </div>
+            `;
+            return;
         }
         
-        const grouped = this.groupEnhancementsByCategory(totals);
-        
-        return `
-            <div class="enhancement-categories">
-                ${Object.entries(grouped).map(([category, enhancements]) => `
-                    <div class="category-section">
-                        <h4>${category}</h4>
-                        <div class="enhancement-grid">
-                            ${Object.entries(enhancements).map(([target, amount]) => {
-                                const cap = getEnhancementCap(target);
-                                const percentage = Math.min((amount / cap) * 100, 100);
-                                const isCapped = amount >= cap;
-                                
-                                return `
-                                    <div class="enhancement-item ${isCapped ? 'capped' : ''}">
-                                        <div class="enhancement-label">${ENHANCEMENT_TARGETS[target] || target}</div>
-                                        <div class="enhancement-value">+${amount}${isCapped ? ' (CAP)' : ''}</div>
-                                        <div class="enhancement-bar">
-                                            <div class="enhancement-fill" style="width: ${percentage}%"></div>
-                                        </div>
-                                    </div>
-                                `;
-                            }).join('')}
-                        </div>
+        container.innerHTML = `
+            <div class="summary-title">Active Enhancements</div>
+            <div class="summary-grid">
+                ${Object.entries(totals).map(([target, value]) => `
+                    <div class="summary-item">
+                        <span class="summary-target">${target}</span>
+                        <span class="summary-value">+${value}</span>
                     </div>
                 `).join('')}
             </div>
         `;
-    },
+    };
     
-    // Group enhancements by category
-    groupEnhancementsByCategory(totals) {
-        const grouped = {};
-        
-        Object.entries(totals).forEach(([target, amount]) => {
-            let category = 'Other';
-            
-            for (const [categoryName, targets] of Object.entries(ENHANCEMENT_CATEGORIES)) {
-                if (targets.includes(target)) {
-                    category = categoryName;
-                    break;
-                }
-            }
-            
-            if (!grouped[category]) {
-                grouped[category] = {};
-            }
-            grouped[category][target] = amount;
-        });
-        
-        return grouped;
-    },
-    
-    // Generate available items for equipment
-    generateAvailableItems() {
-        const availableItems = DataManager.items.filter(item => 
-            item.location !== 'Worn' && 
-            item.enhancives && 
-            item.enhancives.length > 0
-        );
-        
-        if (availableItems.length === 0) {
-            return '<p>No available items with enhancives found.</p>';
-        }
-        
-        return `
-            <div class="available-items-grid">
-                ${availableItems.map(item => this.generateAvailableItemCard(item)).join('')}
-            </div>
-        `;
-    },
-    
-    // Generate available item card
-    generateAvailableItemCard(item) {
-        const enhancivesList = item.enhancives.map(enh => 
-            `<span class="enhancement-tag">${enh.target}: +${enh.amount}</span>`
-        ).join('');
-        
-        return `
-            <div class="available-item-card">
-                <div class="item-header">
-                    <h4>${item.name}</h4>
-                    <span class="item-location">${item.location}</span>
-                </div>
-                <div class="item-enhancives">
-                    ${enhancivesList}
-                </div>
-                <div class="item-actions">
-                    ${item.slot ? 
-                        `<button class="btn btn-primary btn-sm" onclick="ItemsModule.equipItem('${item.id}')">Equip to ${item.slot}</button>` :
-                        `<button class="btn btn-secondary btn-sm" onclick="EquipmentModule.showSlotSelectionForItem('${item.id}')">Select Slot & Equip</button>`
-                    }
-                </div>
-            </div>
-        `;
-    },
-    
-    // Show item selection modal for empty slot
-    showItemSelectionModal(slot) {
-        const compatibleItems = DataManager.items.filter(item => 
-            item.location !== 'Worn' && 
-            (!item.slot || item.slot === slot)
-        );
-        
-        if (compatibleItems.length === 0) {
-            UI.showNotification('No compatible items found for this slot', 'error');
-            return;
-        }
-        
-        const formHTML = `
-            <div class="item-selection">
-                <p>Select an item to equip in the <strong>${slot}</strong> slot:</p>
-                <div class="items-list">
-                    ${compatibleItems.map(item => `
-                        <div class="selectable-item" data-item-id="${item.id}">
-                            <label>
-                                <input type="radio" name="selectedItem" value="${item.id}">
-                                <div class="item-info">
-                                    <div class="item-name">${item.name}</div>
-                                    <div class="item-location">${item.location}</div>
-                                    <div class="item-enhancives">
-                                        ${item.enhancives && item.enhancives.length > 0 ? 
-                                            item.enhancives.map(enh => `${enh.target}: +${enh.amount}`).join(', ') :
-                                            'No enhancives'
-                                        }
-                                    </div>
-                                </div>
-                            </label>
-                        </div>
-                    `).join('')}
-                </div>
-            </div>
-        `;
-        
-        const actions = [
-            {
-                text: 'Cancel',
-                className: 'btn-secondary',
-                onclick: () => true
-            },
-            {
-                text: 'Equip Item',
-                className: 'btn-primary',
-                onclick: () => this.equipSelectedItem(slot)
-            }
-        ];
-        
-        UI.createModal(`Equip Item - ${slot}`, formHTML, actions);
-    },
-    
-    // Show slot selection for item
-    showSlotSelectionForItem(itemId) {
-        const item = DataManager.items.find(i => i.id.toString() === itemId.toString());
-        if (!item) return;
-        
-        const formHTML = `
-            <div class="slot-selection">
-                <p>Select a slot for <strong>${item.name}</strong>:</p>
-                <div class="slots-list">
-                    ${EQUIPMENT_SLOTS.map(slot => {
-                        const isOccupied = DataManager.equipment[slot] !== null;
-                        return `
-                            <div class="selectable-slot ${isOccupied ? 'occupied' : ''}">
-                                <label>
-                                    <input type="radio" name="selectedSlot" value="${slot}">
-                                    <div class="slot-info">
-                                        <div class="slot-name">${slot}</div>
-                                        ${isOccupied ? 
-                                            `<div class="current-item">Currently: ${DataManager.equipment[slot].name}</div>` :
-                                            '<div class="empty-indicator">Empty</div>'
-                                        }
-                                    </div>
-                                </label>
-                            </div>
-                        `;
-                    }).join('')}
-                </div>
-            </div>
-        `;
-        
-        const actions = [
-            {
-                text: 'Cancel',
-                className: 'btn-secondary',
-                onclick: () => true
-            },
-            {
-                text: 'Equip Item',
-                className: 'btn-primary',
-                onclick: () => this.equipItemToSelectedSlot(itemId)
-            }
-        ];
-        
-        UI.createModal(`Select Slot - ${item.name}`, formHTML, actions);
-    },
-    
-    // Equip selected item to slot
-    async equipSelectedItem(slot) {
-        const selectedItemId = document.querySelector('input[name="selectedItem"]:checked')?.value;
-        if (!selectedItemId) {
-            UI.showNotification('Please select an item', 'error');
-            return false;
-        }
-        
-        const item = DataManager.items.find(i => i.id.toString() === selectedItemId.toString());
-        if (!item) return false;
-        
-        const existingItem = DataManager.equipment[slot];
-        if (existingItem) {
-            // Unequip existing item
-            existingItem.location = 'Private';
-            existingItem.slot = null;
-            await DataManager.saveItem(existingItem);
-        }
-        
-        // Equip new item
-        item.location = 'Worn';
-        item.slot = slot;
-        const savedItem = await DataManager.saveItem(item);
-        
-        if (savedItem) {
-            UI.showNotification(`${item.name} equipped to ${slot}`, 'success');
-            this.refresh();
-            ItemsModule.updateItemsList();
-            StatsModule.updateStats();
-            return true;
-        }
-        
-        return false;
-    },
-    
-    // Equip item to selected slot
-    async equipItemToSelectedSlot(itemId) {
-        const selectedSlot = document.querySelector('input[name="selectedSlot"]:checked')?.value;
-        if (!selectedSlot) {
-            UI.showNotification('Please select a slot', 'error');
-            return false;
-        }
-        
-        const item = DataManager.items.find(i => i.id.toString() === itemId.toString());
-        if (!item) return false;
-        
-        const existingItem = DataManager.equipment[selectedSlot];
-        if (existingItem) {
-            const confirm = await new Promise(resolve => {
-                UI.confirm(
-                    `${selectedSlot} is occupied by "${existingItem.name}". Replace it?`,
-                    () => resolve(true),
-                    () => resolve(false)
-                );
-            });
-            
-            if (!confirm) return false;
-            
-            // Unequip existing item
-            existingItem.location = 'Private';
-            existingItem.slot = null;
-            await DataManager.saveItem(existingItem);
-        }
-        
-        // Equip new item
-        item.location = 'Worn';
-        item.slot = selectedSlot;
-        const savedItem = await DataManager.saveItem(item);
-        
-        if (savedItem) {
-            UI.showNotification(`${item.name} equipped to ${selectedSlot}`, 'success');
-            this.refresh();
-            ItemsModule.updateItemsList();
-            StatsModule.updateStats();
-            return true;
-        }
-        
-        return false;
-    },
-    
-    // Unequip item from slot
-    async unequipItem(slot) {
-        const item = DataManager.equipment[slot];
-        if (!item) return;
-        
-        item.location = 'Private';
-        item.slot = null;
-        const savedItem = await DataManager.saveItem(item);
-        
-        if (savedItem) {
-            UI.showNotification(`${item.name} unequipped`, 'success');
-            this.refresh();
-            ItemsModule.updateItemsList();
-            StatsModule.updateStats();
-        }
-    },
-    
-    // Unequip all items
-    async unequipAll() {
-        const equippedItems = DataManager.getEquippedItems();
-        if (equippedItems.length === 0) {
-            UI.showNotification('No items are currently equipped', 'info');
-            return;
-        }
-        
-        UI.confirm(
-            `Are you sure you want to unequip all ${equippedItems.length} items?`,
-            async () => {
-                for (const item of equippedItems) {
-                    item.location = 'Private';
-                    item.slot = null;
-                    await DataManager.saveItem(item);
-                }
-                
-                UI.showNotification('All items unequipped', 'success');
-                this.refresh();
-                ItemsModule.updateItemsList();
-                StatsModule.updateStats();
-            }
-        );
-    },
-    
-    // Show equipment optimization modal
-    showOptimizationModal() {
-        const formHTML = `
-            <div class="optimization-options">
-                <p>Select optimization criteria:</p>
-                
-                <div class="form-group">
-                    <label>
-                        <input type="checkbox" id="optimizeStats" checked>
-                        Maximize stat bonuses
-                    </label>
-                </div>
-                
-                <div class="form-group">
-                    <label>
-                        <input type="checkbox" id="optimizeSkills" checked>
-                        Maximize skill bonuses
-                    </label>
-                </div>
-                
-                <div class="form-group">
-                    <label>
-                        <input type="checkbox" id="avoidCaps">
-                        Avoid exceeding caps
-                    </label>
-                </div>
-                
-                <div class="form-group">
-                    <label for="priorityTarget">Priority Enhancement:</label>
-                    <select id="priorityTarget">
-                        <option value="">No specific priority</option>
-                        ${Object.entries(ENHANCEMENT_TARGETS).map(([key, label]) => 
-                            `<option value="${key}">${label}</option>`
-                        ).join('')}
-                    </select>
-                </div>
-            </div>
-        `;
-        
-        const actions = [
-            {
-                text: 'Cancel',
-                className: 'btn-secondary',
-                onclick: () => true
-            },
-            {
-                text: 'Optimize',
-                className: 'btn-primary',
-                onclick: () => this.performOptimization()
-            }
-        ];
-        
-        UI.createModal('Optimize Equipment', formHTML, actions);
-    },
-    
-    // Perform equipment optimization
-    async performOptimization() {
-        const options = {
-            maximizeStats: document.getElementById('optimizeStats').checked,
-            maximizeSkills: document.getElementById('optimizeSkills').checked,
-            avoidCaps: document.getElementById('avoidCaps').checked,
-            priority: document.getElementById('priorityTarget').value
-        };
-        
-        // This is a simplified optimization algorithm
-        // In a real implementation, this would be much more sophisticated
-        
-        UI.showNotification('Optimization feature coming soon!', 'info');
-        return true;
-    }
-};
+    return {
+        init,
+        refresh: renderEquipmentSlots,
+        equipItem,
+        unequipItem
+    };
+})();
