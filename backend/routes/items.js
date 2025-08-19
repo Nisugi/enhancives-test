@@ -232,13 +232,28 @@ router.get('/sync', authenticateToken, async (req, res) => {
             if (db.from) { // Supabase
                 // Get all personal items for this user
                 console.log('Looking for items for username:', username);
-                const { data: allData, error } = await db
+                
+                // First, let's see ALL items for this user regardless of available status
+                const { data: debugData, error: debugError } = await db
                     .from('items')
                     .select('*')
                     .eq('username', username);
                 
-                console.log('Found items:', allData?.length || 0);
-                console.log('Items data:', allData);
+                console.log('DEBUG - All items for user:', debugData?.length || 0);
+                if (debugData) {
+                    debugData.forEach(item => {
+                        console.log(`- Item: ${item.name}, available: ${item.available}, slot: ${item.slot}`);
+                    });
+                }
+                
+                // Now filter for personal items (available = false)
+                const { data: allData, error } = await db
+                    .from('items')
+                    .select('*')
+                    .eq('username', username)
+                    .eq('available', false);
+                
+                console.log('Found personal items (available=false):', allData?.length || 0);
                 
                 if (error) throw error;
                 
