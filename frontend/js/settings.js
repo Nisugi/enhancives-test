@@ -120,11 +120,16 @@ const SettingsModule = (() => {
     };
     
     const syncFromCloud = async () => {
+        console.log('=== SYNC FROM CLOUD FUNCTION CALLED ===');
+        
         const statusEl = document.getElementById('syncStatus');
         
         if (!confirm('This will replace your local data with data from the cloud. Continue?')) {
+            console.log('User cancelled sync from cloud');
             return;
         }
+        
+        console.log('User confirmed sync from cloud');
         
         if (statusEl) statusEl.innerHTML = '⏳ Loading from cloud...';
         
