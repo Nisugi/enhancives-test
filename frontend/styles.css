@@ -396,14 +396,13 @@ body {
 
 .slot-row {
     display: grid;
-    grid-template-columns: 110px 90px 1fr 50px 70px 35px;
-    gap: 2px;
+    grid-template-columns: 110px 90px 1fr 80px 60px 35px;
+    gap: 0;
     padding: 2px 4px;
     background: #f8f9fa;
     border-radius: 6px;
     align-items: center;
     transition: all 0.3s;
-    font-size: 0.9em;
 }
 
 .slot-row:hover {
@@ -414,12 +413,10 @@ body {
 .slot-location {
     font-weight: 600;
     color: var(--dark);
-    font-size: 0.85em;
 }
 
 .slot-number {
     color: var(--gray);
-    font-size: 0.8em;
 }
 
 .slot-number.premium {
@@ -437,7 +434,6 @@ body {
     background: white;
     border: 1px solid #e2e8f0;
     border-radius: 4px;
-    font-size: 0.85em;
     cursor: pointer;
     transition: all 0.3s;
 }
@@ -457,7 +453,7 @@ body {
 .slot-status {
     padding: 2px 6px;
     border-radius: 4px;
-    font-size: 0.75em;
+    font-size: 0.85em;
     font-weight: 600;
     text-align: center;
 }
@@ -481,13 +477,30 @@ body {
     cursor: pointer;
     opacity: 0;
     transition: opacity 0.3s;
-    font-size: 0.8em;
     width: 24px;
     height: 24px;
 }
 
 .slot-row:hover .unequip-btn.active {
     opacity: 1;
+}
+
+/* Equipment slot checkboxes and labels */
+.slot-row label {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 0.8em;
+    margin: 0;
+    padding: 0;
+    white-space: nowrap;
+}
+
+.slot-row input[type="checkbox"] {
+    margin: 0;
+    padding: 0;
+    width: 12px;
+    height: 12px;
 }
 
 /* ==================== TOTALS TAB STYLES ==================== */
