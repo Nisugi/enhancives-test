@@ -7,10 +7,16 @@ const ItemsModule = (() => {
         setTimeout(() => {
             renderForm();
             renderItemsList();
-        }, 0);
+        }, 100);
     };
     
     const renderForm = () => {
+        const formContainer = document.getElementById('itemForm');
+        if (!formContainer) {
+            console.warn('itemForm container not found');
+            return;
+        }
+        
         const formHtml = `
             <div class="form-group">
                 <label>Item Name</label>
@@ -42,13 +48,14 @@ const ItemsModule = (() => {
                     Enhancive Targets (1-6)
                 </label>
                 <div id="targetsContainer"></div>
-                <button class="btn btn-add-target" onclick="ItemsModule.addTargetRow()">+ Add Target</button>
+                <div style="display: flex; gap: 10px; margin-top: 10px;">
+                    <button class="btn btn-add-target" onclick="ItemsModule.addTargetRow()" style="flex: 1;">+ Add Target</button>
+                    <button class="btn btn-primary" onclick="ItemsModule.saveItem()" style="flex: 2;">Save Item</button>
+                </div>
             </div>
-            
-            <button class="btn btn-primary" onclick="ItemsModule.saveItem()">Save Item</button>
         `;
         
-        document.getElementById('itemForm').innerHTML = formHtml;
+        formContainer.innerHTML = formHtml;
         
         // Add initial target row
         addTargetRow();
@@ -190,14 +197,14 @@ const ItemsModule = (() => {
                     <button onclick="ItemsModule.editNotes(${item.id})" style="float: right; background: none; border: none; color: var(--primary); cursor: pointer;">✏️</button>
                 </div>` : ''}
 
-                <div style="margin-top: 15px; display: flex; gap: 10px; flex-wrap: wrap;">
+                <div style="margin-top: 15px; display: flex; gap: 10px;">
                     <button class="btn ${item.isListed ? 'btn-warning' : 'btn-success'}" 
                             onclick="ItemsModule.toggleListed(${item.id})" 
-                            style="padding: 8px 16px; font-size: 0.9em;">
+                            style="flex: 1; padding: 8px 16px; font-size: 0.9em;">
                         ${item.isListed ? '📤 Unlist' : '🏪 List'}
                     </button>
-                    <button class="btn btn-danger" onclick="ItemsModule.deleteItem(${item.id})" style="padding: 8px 16px; font-size: 0.9em;">Delete</button>
-                    <button class="btn btn-primary" onclick="ItemsModule.editItem(${item.id})" style="padding: 8px 16px; font-size: 0.9em;">Edit</button>
+                    <button class="btn btn-danger" onclick="ItemsModule.deleteItem(${item.id})" style="flex: 1; padding: 8px 16px; font-size: 0.9em;">Delete</button>
+                    <button class="btn btn-primary" onclick="ItemsModule.editItem(${item.id})" style="flex: 1; padding: 8px 16px; font-size: 0.9em;">Edit</button>
                 </div>
             </div>
         `).join('');

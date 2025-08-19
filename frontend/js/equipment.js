@@ -12,7 +12,46 @@ const EquipmentModule = (() => {
         
         const equipment = DataModule.getEquipment();
         const items = DataModule.getItems();
-        let slotIndex = 0;
+        
+        // Define premium/platinum rules for each location
+        const getSlotLabel = (location, slotIndex, totalSlots) => {
+            if (totalSlots === 1) {
+                return location === 'Tattoo' ? 'Mystic Tattoo' : 'Single';
+            }
+            
+            const slotNum = slotIndex + 1;
+            let label = `Slot ${slotNum}`;
+            
+            // Apply premium/platinum rules based on location
+            if (location === 'Pin') {
+                // Pin: 1-8, no premium/platinum
+                return label;
+            } else if (location === 'Ear' || location === 'Ears') {
+                // Ear/Ears: 1, 2 (Premium), 3 (Platinum)
+                if (slotNum === 2) label += ' (Premium)';
+                else if (slotNum === 3) label += ' (Platinum)';
+            } else if (location === 'Neck') {
+                // Neck: 1-3, 4 (Premium), 5 (Platinum)
+                if (slotNum === 4) label += ' (Premium)';
+                else if (slotNum === 5) label += ' (Platinum)';
+            } else if (location === 'Wrist') {
+                // Wrist: 1, 2, 3 (Premium), 4 (Platinum)
+                if (slotNum === 3) label += ' (Premium)';
+                else if (slotNum === 4) label += ' (Platinum)';
+            } else if (location === 'Finger') {
+                // Finger: 1, 2, 3 (Premium), 4 (Platinum)
+                if (slotNum === 3) label += ' (Premium)';
+                else if (slotNum === 4) label += ' (Platinum)';
+            } else if (location === 'Belt') {
+                // Belt: 1-3, no premium/platinum
+                return label;
+            } else if (location === 'Shoulder') {
+                // Shoulder: 1-2, no premium/platinum
+                return label;
+            }
+            
+            return label;
+        };
         
         container.innerHTML = Object.entries(Constants.wearLocations).map(([location, count]) => {
             return Array.from({length: count}, (_, i) => {
@@ -67,15 +106,15 @@ const EquipmentModule = (() => {
                 // Sort by total enhancive value (descending)
                 availableItems.sort((a, b) => b.totalValue - a.totalValue);
                 
-                const slotNum = ++slotIndex;
-                const slotType = slotNum > 50 ? 'platinum' : slotNum > 40 ? 'premium' : '';
+                const slotLabel = getSlotLabel(location, i, count);
+                const slotType = slotLabel.includes('Premium') ? 'premium' : 
+                               slotLabel.includes('Platinum') ? 'platinum' : '';
                 
                 return `
                     <div class="slot-row">
                         <div class="slot-location">${location}</div>
                         <div class="slot-number ${slotType}">
-                            ${slotNum}
-                            ${count > 1 ? ` (${i + 1}/${count})` : ''}
+                            ${slotLabel}
                         </div>
                         <select class="slot-item-select ${item ? 'has-item' : ''}" 
                                 onchange="EquipmentModule.equipItem('${location}', ${i}, this.value)">
