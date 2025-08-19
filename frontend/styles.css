@@ -376,6 +376,8 @@ body {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 30px;
+    align-items: stretch;
+    min-height: 600px;
 }
 
 @media (max-width: 1200px) {
@@ -387,7 +389,7 @@ body {
 .slots-container {
     display: grid;
     gap: 10px;
-    max-height: 800px;
+    height: calc(100% - 60px); /* Subtract space for section title */
     overflow-y: auto;
     padding-right: 10px;
 }
@@ -592,7 +594,8 @@ body {
     background: white;
     padding: 20px;
     border-radius: 10px;
-    min-height: 400px;
+    height: calc(100% - 60px); /* Match slots container height */
+    overflow-y: auto;
 }
 
 .summary-title {
