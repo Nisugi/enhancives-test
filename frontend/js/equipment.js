@@ -438,7 +438,7 @@ const EquipmentModule = (() => {
         UI.showNotification(`Loadout "${loadoutName}" loaded!`, 'success');
     };
     
-    const deleteLoadout = () => {
+    const deleteLoadout = async () => {
         const select = document.getElementById('loadoutSelect');
         const loadoutName = select?.value;
         
@@ -451,10 +451,35 @@ const EquipmentModule = (() => {
             return;
         }
         
+        // Delete from local storage
         const loadouts = getLoadouts();
         delete loadouts[loadoutName];
         saveLoadouts(loadouts);
         refreshLoadoutDropdown();
+        
+        // Delete from cloud if authenticated
+        if (typeof AuthModule !== 'undefined' && AuthModule.isAuthenticated()) {
+            try {
+                const token = AuthModule.getToken();
+                const response = await fetch(`${Config.API_URL}/loadouts/by-name/${encodeURIComponent(loadoutName)}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (!response.ok) {
+                    console.warn('Failed to delete cloud loadout:', response.status);
+                    UI.showNotification(`Loadout "${loadoutName}" deleted locally, but failed to delete from cloud`, 'warning');
+                    return;
+                }
+            } catch (error) {
+                console.warn('Error deleting cloud loadout:', error);
+                UI.showNotification(`Loadout "${loadoutName}" deleted locally, but failed to delete from cloud`, 'warning');
+                return;
+            }
+        }
         
         UI.showNotification(`Loadout "${loadoutName}" deleted!`, 'success');
     };

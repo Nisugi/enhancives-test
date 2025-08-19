@@ -296,7 +296,7 @@ const DataModule = (() => {
             input.click();
         },
 
-        clearAllData: () => {
+        clearAllData: async () => {
             if (confirm('⚠️ WARNING: This will delete ALL your items and equipment data. This cannot be undone!\n\nAre you sure you want to continue?')) {
                 if (confirm('This is your last chance! All data will be permanently deleted. Continue?')) {
                     items = [];
@@ -304,11 +304,35 @@ const DataModule = (() => {
                     initializeEquipment();
                     saveData();
                     
+                    // Clear local loadouts
+                    localStorage.removeItem('equipmentLoadouts');
+                    
+                    // Clear cloud loadouts if authenticated
+                    if (typeof AuthModule !== 'undefined' && AuthModule.isAuthenticated()) {
+                        try {
+                            const token = AuthModule.getToken();
+                            const response = await fetch(`${Config.API_URL}/loadouts/clear-all`, {
+                                method: 'DELETE',
+                                headers: {
+                                    'Authorization': `Bearer ${token}`,
+                                    'Content-Type': 'application/json'
+                                }
+                            });
+                            
+                            if (!response.ok) {
+                                console.warn('Failed to clear cloud loadouts:', response.status);
+                            }
+                        } catch (error) {
+                            console.warn('Error clearing cloud loadouts:', error);
+                        }
+                    }
+                    
                     // Refresh all displays
                     if (typeof ItemsModule !== 'undefined' && ItemsModule.refresh) ItemsModule.refresh();
                     if (typeof EquipmentModule !== 'undefined' && EquipmentModule.refresh) EquipmentModule.refresh();
                     if (typeof StatsModule !== 'undefined' && StatsModule.updateStats) StatsModule.updateStats();
                     if (typeof TotalsModule !== 'undefined' && TotalsModule.refresh) TotalsModule.refresh();
+                    if (typeof EquipmentModule !== 'undefined' && EquipmentModule.refreshLoadoutDropdown) EquipmentModule.refreshLoadoutDropdown();
                     
                     UI.showNotification('All data cleared');
                 }

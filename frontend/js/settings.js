@@ -14,12 +14,17 @@ const SettingsModule = (() => {
                 <div class="stat-group">
                     <div class="stat-group-title">Data Management</div>
                     
-                    <div style="margin: 20px 0; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
+                    <div style="margin: 20px 0; display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
                         <button class="btn btn-primary" onclick="DataModule.exportData()">
                             📥 Export Data
                         </button>
                         <button class="btn btn-primary" onclick="DataModule.importData()">
                             📤 Import Data
+                        </button>
+                    </div>
+                    <div style="margin: 20px 0; display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <button class="btn btn-warning" onclick="SettingsModule.deleteUnequippedItems()">
+                            🗑️ Delete Unequipped Items
                         </button>
                         <button class="btn btn-danger" onclick="DataModule.clearAllData()">
                             🗑️ Clear All Data
@@ -252,10 +257,41 @@ const SettingsModule = (() => {
         }
     };
     
+    const deleteUnequippedItems = () => {
+        const items = DataModule.getItems();
+        const equippedItems = DataModule.getEquippedItems();
+        const equippedIds = new Set(equippedItems.map(item => item.id));
+        
+        const unequippedItems = items.filter(item => !equippedIds.has(item.id));
+        
+        if (unequippedItems.length === 0) {
+            UI.showNotification('No unequipped items to delete', 'info');
+            return;
+        }
+        
+        if (!confirm(`⚠️ This will delete ${unequippedItems.length} unequipped items. This cannot be undone!\n\nAre you sure you want to continue?`)) {
+            return;
+        }
+        
+        // Delete each unequipped item
+        unequippedItems.forEach(item => {
+            DataModule.deleteItem(item.id);
+        });
+        
+        // Refresh all displays
+        if (typeof ItemsModule !== 'undefined') ItemsModule.refresh();
+        if (typeof EquipmentModule !== 'undefined') EquipmentModule.refresh();
+        if (typeof TotalsModule !== 'undefined') TotalsModule.refresh();
+        refresh(); // Refresh settings to update statistics
+        
+        UI.showNotification(`Deleted ${unequippedItems.length} unequipped items`, 'success');
+    };
+    
     return { 
         init: () => {},
         refresh,
         syncToCloud,
-        syncFromCloud
+        syncFromCloud,
+        deleteUnequippedItems
     };
 })();

@@ -190,4 +190,87 @@ router.delete('/:id', authMiddleware, async (req, res) => {
     }
 });
 
+// Delete a loadout by name
+router.delete('/by-name/:name', authMiddleware, async (req, res) => {
+    try {
+        console.log('=== DELETE LOADOUT BY NAME REQUEST RECEIVED ===');
+        const { username } = req.user;
+        const { name } = req.params;
+        
+        console.log('Username:', username);
+        console.log('Loadout Name:', name);
+
+        const result = await dbOperation(async (db) => {
+            if (db.from) {
+                // Supabase
+                console.log('Using Supabase for deleting loadout by name');
+                const { error } = await db
+                    .from('loadouts')
+                    .delete()
+                    .eq('name', name)
+                    .eq('username', username);
+                
+                if (error) throw error;
+                return { success: true };
+            } else {
+                // Development mode
+                console.log('Using devStorage for deleting loadout by name');
+                const index = db.loadouts.findIndex(
+                    loadout => loadout.name === name && loadout.username === username
+                );
+                
+                if (index >= 0) {
+                    db.loadouts.splice(index, 1);
+                    return { success: true };
+                } else {
+                    throw new Error('Loadout not found');
+                }
+            }
+        });
+
+        console.log('Delete loadout by name result:', result);
+        res.json(result);
+    } catch (error) {
+        console.error('Error deleting loadout by name:', error);
+        res.status(500).json({ error: 'Failed to delete loadout' });
+    }
+});
+
+// Clear all loadouts for a user
+router.delete('/clear-all', authMiddleware, async (req, res) => {
+    try {
+        console.log('=== CLEAR ALL LOADOUTS REQUEST RECEIVED ===');
+        const { username } = req.user;
+        console.log('Username:', username);
+
+        const result = await dbOperation(async (db) => {
+            if (db.from) {
+                // Supabase
+                console.log('Using Supabase for clearing all loadouts');
+                const { error } = await db
+                    .from('loadouts')
+                    .delete()
+                    .eq('username', username);
+                
+                if (error) throw error;
+                return { success: true };
+            } else {
+                // Development mode
+                console.log('Using devStorage for clearing all loadouts');
+                const initialLength = db.loadouts.length;
+                db.loadouts = db.loadouts.filter(loadout => loadout.username !== username);
+                const deletedCount = initialLength - db.loadouts.length;
+                
+                return { success: true, deletedCount };
+            }
+        });
+
+        console.log('Clear all loadouts result:', result);
+        res.json(result);
+    } catch (error) {
+        console.error('Error clearing all loadouts:', error);
+        res.status(500).json({ error: 'Failed to clear all loadouts' });
+    }
+});
+
 module.exports = router;
