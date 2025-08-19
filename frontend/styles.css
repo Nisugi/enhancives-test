@@ -633,7 +633,7 @@ body {
     background: white;
     padding: 5px;
     border-radius: 10px;
-    height: calc(100% - 70px); /* Account for section title and margins */
+    height: calc(98% - 70px); /* Account for section title and margins, reduced 2% */
     overflow-y: auto;
     overflow-x: hidden;
     word-wrap: break-word;

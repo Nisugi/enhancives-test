@@ -207,9 +207,45 @@ const DataModule = (() => {
                 reader.onload = event => {
                     try {
                         const data = JSON.parse(event.target.result);
-                        items = data.items || [];
+                        const importedItems = data.items || [];
                         
-                        // Update nextId
+                        // Create a function to generate a unique key for deduplication
+                        const createItemKey = (item) => {
+                            const targetKey = item.targets ? 
+                                item.targets.map(t => `${t.target}:${t.type}:${t.amount}`).sort().join('|') : 
+                                '';
+                            return `${item.name}::${targetKey}`;
+                        };
+                        
+                        // Create a map of existing items for deduplication
+                        const existingItemsMap = new Map();
+                        items.forEach(item => {
+                            existingItemsMap.set(createItemKey(item), item);
+                        });
+                        
+                        // Merge imported items, deduplicating based on name + targets
+                        let addedCount = 0;
+                        let duplicateCount = 0;
+                        
+                        importedItems.forEach(importedItem => {
+                            const itemKey = createItemKey(importedItem);
+                            
+                            if (!existingItemsMap.has(itemKey)) {
+                                // New item - add it with a new ID
+                                const newItem = {
+                                    ...importedItem,
+                                    id: nextId++,
+                                    dateAdded: importedItem.dateAdded || new Date().toISOString()
+                                };
+                                items.push(newItem);
+                                existingItemsMap.set(itemKey, newItem);
+                                addedCount++;
+                            } else {
+                                duplicateCount++;
+                            }
+                        });
+                        
+                        // Update nextId to be safe
                         nextId = items.length > 0 ? Math.max(...items.map(i => i.id)) + 1 : 1;
                         
                         // Import equipment, merging with current structure
@@ -230,7 +266,12 @@ const DataModule = (() => {
                         if (typeof StatsModule !== 'undefined') StatsModule.updateStats();
                         TotalsModule.refresh();
                         
-                        UI.showNotification('Data imported successfully!');
+                        // Show detailed import results
+                        let message = `Import completed! Added ${addedCount} new items`;
+                        if (duplicateCount > 0) {
+                            message += `, skipped ${duplicateCount} duplicates`;
+                        }
+                        UI.showNotification(message, 'success');
                     } catch (error) {
                         UI.showNotification('Error importing data', 'error');
                         console.error('Import error:', error);
