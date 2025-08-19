@@ -4,6 +4,109 @@ const router = express.Router();
 const { dbOperation } = require('../config/database');
 const { authenticateToken } = require('../middleware/auth');
 
+// Sync items - Load from cloud (MUST be before /:username route)
+router.get('/sync', authenticateToken, async (req, res) => {
+    console.log('=== SYNC LOAD REQUEST RECEIVED ===');
+    console.log('Request headers:', req.headers);
+    console.log('User from middleware:', req.user);
+    
+    try {
+        const username = req.user?.username;
+        
+        console.log('Extracted username:', username);
+        
+        if (!username) {
+            console.log('Authentication failed - no username');
+            return res.status(401).json({ error: 'User not authenticated' });
+        }
+        
+        const result = await dbOperation(async (db) => {
+            if (db.from) { // Supabase
+                // Get all personal items for this user
+                console.log('Looking for items for username:', username);
+                
+                // First, let's see ALL items for this user regardless of available status
+                const { data: debugData, error: debugError } = await db
+                    .from('items')
+                    .select('*')
+                    .eq('username', username);
+                
+                console.log('DEBUG - All items for user:', debugData?.length || 0);
+                if (debugData) {
+                    debugData.forEach(item => {
+                        console.log(`- Item: ${item.name}, available: ${item.available}, slot: ${item.slot}`);
+                    });
+                }
+                
+                // Now filter for personal items (available = false)
+                const { data: allData, error } = await db
+                    .from('items')
+                    .select('*')
+                    .eq('username', username);
+                
+                console.log('Found personal items (available=false):', allData?.length || 0);
+                
+                if (error) throw error;
+                
+                if (allData && allData.length > 0) {
+                    // Reconstruct equipment configuration from slot data
+                    const equipment = {};
+                    
+                    // Clean up items and build equipment structure
+                    const cleanItems = allData.map(item => {
+                        // If item has slot info, add it to equipment
+                        if (item.slot) {
+                            const [location, slotIndex] = item.slot.split(':');
+                            if (!equipment[location]) {
+                                equipment[location] = [];
+                            }
+                            equipment[location][parseInt(slotIndex)] = item.id;
+                        }
+                        
+                        // Return clean item without backend fields
+                        const { username: itemUsername, available, created_at, slot, ...cleanItem } = item;
+                        return cleanItem;
+                    });
+                    
+                    console.log('Reconstructed equipment:', equipment);
+                    
+                    return { items: cleanItems, equipment };
+                }
+                return { items: [], equipment: {} };
+            } else { // Development mode
+                const userItems = db.items.filter(item => item.username == username && item.available === false);
+                
+                // Reconstruct equipment configuration from slot data
+                const equipment = {};
+                
+                // Clean up items and build equipment structure
+                const cleanItems = userItems.map(item => {
+                    // If item has slot info, add it to equipment
+                    if (item.slot) {
+                        const [location, slotIndex] = item.slot.split(':');
+                        if (!equipment[location]) {
+                            equipment[location] = [];
+                        }
+                        equipment[location][parseInt(slotIndex)] = item.id;
+                    }
+                    
+                    // Return clean item without backend fields
+                    const { username: itemUsername, available, slot, ...cleanItem } = item;
+                    return cleanItem;
+                });
+                
+                return { items: cleanItems, equipment };
+            }
+        });
+        
+        console.log('Final result being sent:', result);
+        res.json(result);
+    } catch (error) {
+        console.error('Sync load error:', error);
+        res.status(500).json({ error: 'Failed to load from cloud' });
+    }
+});
+
 // Get items for a user  
 router.get('/:username', async (req, res) => {
     try {
@@ -216,110 +319,6 @@ router.post('/sync', authenticateToken, async (req, res) => {
     } catch (error) {
         console.error('Sync save error:', error);
         res.status(500).json({ error: 'Failed to save to cloud' });
-    }
-});
-
-// Sync items - Load from cloud
-router.get('/sync', authenticateToken, async (req, res) => {
-    console.log('=== SYNC LOAD REQUEST RECEIVED ===');
-    console.log('Request headers:', req.headers);
-    console.log('User from middleware:', req.user);
-    
-    try {
-        const username = req.user?.username;
-        
-        console.log('Extracted username:', username);
-        
-        if (!username) {
-            console.log('Authentication failed - no username');
-            return res.status(401).json({ error: 'User not authenticated' });
-        }
-        
-        const result = await dbOperation(async (db) => {
-            if (db.from) { // Supabase
-                // Get all personal items for this user
-                console.log('Looking for items for username:', username);
-                
-                // First, let's see ALL items for this user regardless of available status
-                const { data: debugData, error: debugError } = await db
-                    .from('items')
-                    .select('*')
-                    .eq('username', username);
-                
-                console.log('DEBUG - All items for user:', debugData?.length || 0);
-                if (debugData) {
-                    debugData.forEach(item => {
-                        console.log(`- Item: ${item.name}, available: ${item.available}, slot: ${item.slot}`);
-                    });
-                }
-                
-                // Now filter for personal items (available = false)
-                const { data: allData, error } = await db
-                    .from('items')
-                    .select('*')
-                    .eq('username', username)
-                    .eq('available', false);
-                
-                console.log('Found personal items (available=false):', allData?.length || 0);
-                
-                if (error) throw error;
-                
-                if (allData && allData.length > 0) {
-                    // Reconstruct equipment configuration from slot data
-                    const equipment = {};
-                    
-                    // Clean up items and build equipment structure
-                    const cleanItems = allData.map(item => {
-                        // If item has slot info, add it to equipment
-                        if (item.slot) {
-                            const [location, slotIndex] = item.slot.split(':');
-                            if (!equipment[location]) {
-                                equipment[location] = [];
-                            }
-                            equipment[location][parseInt(slotIndex)] = item.id;
-                        }
-                        
-                        // Return clean item without backend fields
-                        const { username: itemUsername, available, created_at, slot, ...cleanItem } = item;
-                        return cleanItem;
-                    });
-                    
-                    console.log('Reconstructed equipment:', equipment);
-                    
-                    return { items: cleanItems, equipment };
-                }
-                return { items: [], equipment: {} };
-            } else { // Development mode
-                const userItems = db.items.filter(item => item.username == username && item.available === false);
-                
-                // Reconstruct equipment configuration from slot data
-                const equipment = {};
-                
-                // Clean up items and build equipment structure
-                const cleanItems = userItems.map(item => {
-                    // If item has slot info, add it to equipment
-                    if (item.slot) {
-                        const [location, slotIndex] = item.slot.split(':');
-                        if (!equipment[location]) {
-                            equipment[location] = [];
-                        }
-                        equipment[location][parseInt(slotIndex)] = item.id;
-                    }
-                    
-                    // Return clean item without backend fields
-                    const { username: itemUsername, available, slot, ...cleanItem } = item;
-                    return cleanItem;
-                });
-                
-                return { items: cleanItems, equipment };
-            }
-        });
-        
-        console.log('Final result being sent:', result);
-        res.json(result);
-    } catch (error) {
-        console.error('Sync load error:', error);
-        res.status(500).json({ error: 'Failed to load from cloud' });
     }
 });
 
