@@ -4,10 +4,12 @@ const SettingsModule = (() => {
         const container = document.getElementById('settingsContent');
         if (!container) return;
         
-        const items = DataModule.getItems();
-        const equippedItems = DataModule.getEquippedItems();
-        
-        container.innerHTML = `
+        try {
+            const items = DataModule.getItems();
+            const equippedItems = DataModule.getEquippedItems();
+            const isLoggedIn = typeof AuthModule !== 'undefined' ? AuthModule.isAuthenticated() : false;
+            
+            container.innerHTML = `
             <div class="settings-sections">
                 <div class="stat-group">
                     <div class="stat-group-title">Data Management</div>
@@ -24,7 +26,7 @@ const SettingsModule = (() => {
                         </button>
                     </div>
                     
-                    ${AuthModule.isLoggedIn() ? `
+                    ${isLoggedIn ? `
                     <div style="background: #e6fffa; padding: 15px; border-radius: 8px; margin: 20px 0; border: 1px solid #00b5d8;">
                         <h4 style="margin-bottom: 10px; color: var(--dark);">☁️ Cloud Sync</h4>
                         <p style="margin: 5px 0 15px 0; color: var(--gray); font-size: 0.9em;">
@@ -70,6 +72,14 @@ const SettingsModule = (() => {
                 
             </div>
         `;
+        } catch (error) {
+            console.error('Settings render error:', error);
+            container.innerHTML = `
+                <div style="color: red; padding: 20px;">
+                    Error loading settings: ${error.message}
+                </div>
+            `;
+        }
     };
     
     const syncToCloud = async () => {

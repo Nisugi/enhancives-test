@@ -243,7 +243,8 @@ const AuthModule = (() => {
         syncData,
         isAuthenticated,
         getAuthHeaders,
-        getCurrentUser: () => currentUser
+        getCurrentUser: () => currentUser,
+        getToken: () => authToken
     };
 })();
 
