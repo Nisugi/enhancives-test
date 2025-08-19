@@ -617,7 +617,7 @@ body {
 
 .equipped-summary {
     background: white;
-    padding: 15px;
+    padding: 5px;
     border-radius: 10px;
     height: calc(100% - 60px); /* Match slots container height */
     overflow-y: auto;
@@ -625,6 +625,7 @@ body {
     word-wrap: break-word;
     box-sizing: border-box;
     max-width: 100%;
+    width: 100%;
 }
 
 .summary-title {
