@@ -303,7 +303,8 @@ const MarketplaceModule = (() => {
                 <div class="item-header">
                     <div>
                         <div class="item-name">${item.name}</div>
-                        <div style="color: var(--gray); font-size: 0.9em;">by ${item.username}</div>
+                        <div style="color: var(--primary); font-size: 0.9em; font-weight: 600;">+${item.targets?.reduce((sum, t) => sum + Math.abs(t.amount), 0) || 0} total enhancement</div>
+                        <div style="color: var(--gray); font-size: 0.85em;">by ${item.username}</div>
                     </div>
                     <div style="display: flex; gap: 8px; align-items: center;">
                         <div class="item-location">${item.location}</div>
