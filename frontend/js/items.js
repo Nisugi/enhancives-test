@@ -202,15 +202,15 @@ const ItemsModule = (() => {
                     <button onclick="ItemsModule.editNotes(${item.id})" style="float: right; background: none; border: none; color: var(--primary); cursor: pointer;">✏️</button>
                 </div>` : ''}
 
-                <div style="margin-top: 15px; display: flex; gap: 10px;">
+                <div class="item-actions" style="margin-top: 15px; display: flex; gap: 8px; align-items: stretch;">
                     <button class="btn ${item.isListed ? 'btn-warning' : 'btn-success'}" 
                             onclick="ItemsModule.toggleListed(${item.id})" 
-                            style="flex: 1; padding: 8px 16px; font-size: 0.9em;">
+                            style="flex: 1; height: 36px; padding: 8px 12px; font-size: 0.9em;">
                         ${item.isListed ? '📤 Unlist' : '🏪 List'}
                     </button>
-                    <button class="btn btn-secondary" onclick="ItemsModule.makeCopy(${item.id})" style="flex: 1; padding: 8px 16px; font-size: 0.9em;">📋 Copy</button>
-                    <button class="btn btn-danger" onclick="ItemsModule.deleteItem(${item.id})" style="flex: 1; padding: 8px 16px; font-size: 0.9em;">Delete</button>
-                    <button class="btn btn-primary" onclick="ItemsModule.editItem(${item.id})" style="flex: 1; padding: 8px 16px; font-size: 0.9em;">Edit</button>
+                    <button class="btn btn-secondary" onclick="ItemsModule.makeCopy(${item.id})" style="flex: 1; height: 36px; padding: 8px 12px; font-size: 0.9em;">📋 Copy</button>
+                    <button class="btn btn-danger" onclick="ItemsModule.deleteItem(${item.id})" style="flex: 1; height: 36px; padding: 8px 12px; font-size: 0.9em;">Delete</button>
+                    <button class="btn btn-primary" onclick="ItemsModule.editItem(${item.id})" style="flex: 1; height: 36px; padding: 8px 12px; font-size: 0.9em;">Edit</button>
                 </div>
             </div>
         `).join('');
@@ -383,7 +383,10 @@ const ItemsModule = (() => {
         UI.showNotification('Copy created! Visit the Copies tab to modify swap targets.', 'success');
     };
     
-    const sortItems = (sortBy) => {
+    const sortItems = () => {
+        const sortBy = document.getElementById('itemsSortSelect')?.value;
+        const reverse = document.getElementById('itemsReverseSort')?.checked || false;
+        
         if (!sortBy) {
             renderItemsList(); // Reset to original order
             return;
@@ -415,6 +418,11 @@ const ItemsModule = (() => {
                     return totalB - totalA; // Descending order
                 });
                 break;
+        }
+        
+        // Apply reverse if checked
+        if (reverse) {
+            sortedItems.reverse();
         }
         
         renderSortedItemsList(sortedItems);
@@ -466,15 +474,15 @@ const ItemsModule = (() => {
                     </div>
                 ` : ''}
                 
-                <div class="item-actions">
+                <div class="item-actions" style="margin-top: 15px; display: flex; gap: 8px; align-items: stretch;">
                     <button class="btn ${item.isListed ? 'btn-warning' : 'btn-success'}" 
                             onclick="ItemsModule.toggleListed(${item.id})" 
-                            style="flex: 1; padding: 8px 16px; font-size: 0.9em;">
+                            style="flex: 1; height: 36px; padding: 8px 12px; font-size: 0.9em;">
                         ${item.isListed ? '📤 Unlist' : '🏪 List'}
                     </button>
-                    <button class="btn btn-secondary" onclick="ItemsModule.makeCopy(${item.id})" style="flex: 1; padding: 8px 16px; font-size: 0.9em;">📋 Copy</button>
-                    <button class="btn btn-danger" onclick="ItemsModule.deleteItem(${item.id})" style="flex: 1; padding: 8px 16px; font-size: 0.9em;">Delete</button>
-                    <button class="btn btn-primary" onclick="ItemsModule.editItem(${item.id})" style="flex: 1; padding: 8px 16px; font-size: 0.9em;">Edit</button>
+                    <button class="btn btn-secondary" onclick="ItemsModule.makeCopy(${item.id})" style="flex: 1; height: 36px; padding: 8px 12px; font-size: 0.9em;">📋 Copy</button>
+                    <button class="btn btn-danger" onclick="ItemsModule.deleteItem(${item.id})" style="flex: 1; height: 36px; padding: 8px 12px; font-size: 0.9em;">Delete</button>
+                    <button class="btn btn-primary" onclick="ItemsModule.editItem(${item.id})" style="flex: 1; height: 36px; padding: 8px 12px; font-size: 0.9em;">Edit</button>
                 </div>
             </div>
         `).join('');

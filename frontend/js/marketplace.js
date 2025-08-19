@@ -67,18 +67,22 @@ const MarketplaceModule = (() => {
                 <div id="marketplace-browse-tab" class="marketplace-tab-panel">
                     <div class="panel">
                         <div class="search-bar-container" style="margin-bottom: 20px;">
-                            <div style="display: flex; gap: 10px; margin-bottom: 10px; align-items: center;">
+                            <div style="display: flex; gap: 10px; margin-bottom: 10px; align-items: stretch;">
                                 <input type="text" class="search-bar" placeholder="🔍 Search marketplace..." 
-                                       onkeyup="MarketplaceModule.searchMarketplace(this.value)" style="flex: 2;">
-                                <select id="marketplaceSortSelect" onchange="MarketplaceModule.sortMarketplace(this.value)" style="flex: 1; height: 40px;">
+                                       onkeyup="MarketplaceModule.searchMarketplace(this.value)" style="flex: 2; height: 40px;">
+                                <select id="marketplaceSortSelect" onchange="MarketplaceModule.sortMarketplace()" style="flex: 1; height: 40px;">
                                     <option value="">Sort by...</option>
                                     <option value="name">Name</option>
                                     <option value="location">Location</option>
-                                    <option value="targets">Target Count</option>
+                                    <option value="targets">Enhancive Count</option>
                                     <option value="permanence">Permanence</option>
                                     <option value="total">Total Enhancement</option>
                                     <option value="username">Owner</option>
                                 </select>
+                                <label style="display: flex; align-items: center; gap: 5px; white-space: nowrap;">
+                                    <input type="checkbox" id="marketplaceReverseSort" onchange="MarketplaceModule.sortMarketplace()">
+                                    Reverse
+                                </label>
                             </div>
                             <button class="btn btn-primary" onclick="MarketplaceModule.loadMarketplace()" style="width: 100%;">
                                 🔄 Refresh
@@ -233,7 +237,10 @@ const MarketplaceModule = (() => {
         renderMarketplaceItems(query);
     };
     
-    const sortMarketplace = (sortBy) => {
+    const sortMarketplace = () => {
+        const sortBy = document.getElementById('marketplaceSortSelect')?.value;
+        const reverse = document.getElementById('marketplaceReverseSort')?.checked || false;
+        
         if (!sortBy) {
             renderMarketplaceItems(); // Reset to original order
             return;
@@ -267,6 +274,11 @@ const MarketplaceModule = (() => {
             case 'username':
                 sortedItems.sort((a, b) => a.username.localeCompare(b.username));
                 break;
+        }
+        
+        // Apply reverse if checked
+        if (reverse) {
+            sortedItems.reverse();
         }
         
         renderSortedMarketplaceItems(sortedItems);
