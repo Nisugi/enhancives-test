@@ -224,13 +224,19 @@ const MarketplaceModule = (() => {
         try {
             UI.showNotification('Updating marketplace...', 'info');
             
-            // Add user info to items for backend
+            // Add user info to items for backend - only send essential fields
             const currentUser = AuthModule.getCurrentUser();
             const itemsWithUser = listedItems.map(item => ({
-                ...item,
+                id: item.id,
+                name: item.name,
+                location: item.location,
+                permanence: item.permanence,
+                notes: item.notes ? item.notes.substring(0, 500) : '', // Limit notes to 500 chars
+                targets: item.targets,
                 user_id: currentUser.id,
                 username: currentUser.username,
-                available: true
+                available: true,
+                dateAdded: item.created_at || new Date().toISOString()
             }));
             
             const response = await fetch(`${Config.API_URL}/marketplace/sync`, {
