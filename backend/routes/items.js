@@ -146,17 +146,34 @@ router.post('/sync', authenticateToken, async (req, res) => {
                     .eq('username', username)
                     .eq('available', false);
                 
-                // Insert items using existing table structure (same as marketplace)
+                // Insert items with slot information
                 if (items && items.length > 0) {
-                    const itemsWithUser = items.map(item => ({
-                        name: item.name,
-                        location: item.location,
-                        permanence: item.permanence,
-                        notes: item.notes || '',
-                        targets: item.targets,
-                        username: username,
-                        available: false // Personal items, not marketplace items
-                    }));
+                    const itemsWithUser = items.map(item => {
+                        // Find which slot this item is equipped in
+                        let slot = null;
+                        if (equipment) {
+                            for (const [location, slots] of Object.entries(equipment)) {
+                                const slotIndex = slots.findIndex(slotItemId => slotItemId === item.id);
+                                if (slotIndex !== -1) {
+                                    slot = `${location}:${slotIndex}`;
+                                    break;
+                                }
+                            }
+                        }
+                        
+                        return {
+                            name: item.name,
+                            location: item.location,
+                            permanence: item.permanence,
+                            notes: item.notes || '',
+                            targets: item.targets,
+                            slot: slot, // Store equipment slot info here
+                            username: username,
+                            available: false // Personal items, not marketplace items
+                        };
+                    });
+                    
+                    console.log('Storing items with slots:', itemsWithUser.map(i => ({ name: i.name, slot: i.slot })));
                     
                     const { error } = await db
                         .from('items')
@@ -164,48 +181,33 @@ router.post('/sync', authenticateToken, async (req, res) => {
                     
                     if (error) throw error;
                 }
-                
-                // Store equipment data as a special item
-                if (equipment && Object.keys(equipment).length > 0) {
-                    const { error } = await db
-                        .from('items')
-                        .insert([{
-                            name: '__EQUIPMENT_DATA__',
-                            location: 'system',
-                            permanence: 'Persists',
-                            notes: JSON.stringify(equipment),
-                            targets: [],
-                            username: username,
-                            available: false
-                        }]);
-                    
-                    if (error) throw error;
-                }
             } else { // Development mode
                 // Remove old personal items for this user
                 db.items = db.items.filter(item => item.username != username || item.available === true);
                 
-                // Add new items
+                // Add new items with slot info
                 if (items && items.length > 0) {
-                    const itemsWithUser = items.map(item => ({
-                        ...item,
-                        username: username,
-                        available: false
-                    }));
-                    db.items.push(...itemsWithUser);
-                }
-                
-                // Add equipment data
-                if (equipment && Object.keys(equipment).length > 0) {
-                    db.items.push({
-                        name: '__EQUIPMENT_DATA__',
-                        location: 'system',
-                        permanence: 'Persists',
-                        notes: JSON.stringify(equipment),
-                        targets: [],
-                        username: username,
-                        available: false
+                    const itemsWithUser = items.map(item => {
+                        // Find which slot this item is equipped in
+                        let slot = null;
+                        if (equipment) {
+                            for (const [location, slots] of Object.entries(equipment)) {
+                                const slotIndex = slots.findIndex(slotItemId => slotItemId === item.id);
+                                if (slotIndex !== -1) {
+                                    slot = `${location}:${slotIndex}`;
+                                    break;
+                                }
+                            }
+                        }
+                        
+                        return {
+                            ...item,
+                            slot: slot,
+                            username: username,
+                            available: false
+                        };
                     });
+                    db.items.push(...itemsWithUser);
                 }
             }
         });
@@ -229,34 +231,38 @@ router.get('/sync', authenticateToken, async (req, res) => {
         const result = await dbOperation(async (db) => {
             if (db.from) { // Supabase
                 // Get all personal items for this user
+                console.log('Looking for items for username:', username);
                 const { data: allData, error } = await db
                     .from('items')
                     .select('*')
-                    .eq('username', username)
-                    .eq('available', false);
+                    .eq('username', username);
+                
+                console.log('Found items:', allData?.length || 0);
+                console.log('Items data:', allData);
                 
                 if (error) throw error;
                 
                 if (allData && allData.length > 0) {
-                    // Separate equipment data from regular items
-                    const equipmentItem = allData.find(item => item.name === '__EQUIPMENT_DATA__');
-                    const regularItems = allData.filter(item => item.name !== '__EQUIPMENT_DATA__');
+                    // Reconstruct equipment configuration from slot data
+                    const equipment = {};
                     
-                    // Parse equipment data
-                    let equipment = {};
-                    if (equipmentItem && equipmentItem.notes) {
-                        try {
-                            equipment = JSON.parse(equipmentItem.notes);
-                        } catch (e) {
-                            console.error('Failed to parse equipment data:', e);
+                    // Clean up items and build equipment structure
+                    const cleanItems = allData.map(item => {
+                        // If item has slot info, add it to equipment
+                        if (item.slot) {
+                            const [location, slotIndex] = item.slot.split(':');
+                            if (!equipment[location]) {
+                                equipment[location] = [];
+                            }
+                            equipment[location][parseInt(slotIndex)] = item.id;
                         }
-                    }
-                    
-                    // Clean up items to remove backend-specific fields
-                    const cleanItems = regularItems.map(item => {
-                        const { username: itemUsername, available, created_at, ...cleanItem } = item;
+                        
+                        // Return clean item without backend fields
+                        const { username: itemUsername, available, created_at, slot, ...cleanItem } = item;
                         return cleanItem;
                     });
+                    
+                    console.log('Reconstructed equipment:', equipment);
                     
                     return { items: cleanItems, equipment };
                 }
@@ -264,23 +270,22 @@ router.get('/sync', authenticateToken, async (req, res) => {
             } else { // Development mode
                 const userItems = db.items.filter(item => item.username == username && item.available === false);
                 
-                // Separate equipment data from regular items
-                const equipmentItem = userItems.find(item => item.name === '__EQUIPMENT_DATA__');
-                const regularItems = userItems.filter(item => item.name !== '__EQUIPMENT_DATA__');
+                // Reconstruct equipment configuration from slot data
+                const equipment = {};
                 
-                // Parse equipment data
-                let equipment = {};
-                if (equipmentItem && equipmentItem.notes) {
-                    try {
-                        equipment = JSON.parse(equipmentItem.notes);
-                    } catch (e) {
-                        console.error('Failed to parse equipment data:', e);
+                // Clean up items and build equipment structure
+                const cleanItems = userItems.map(item => {
+                    // If item has slot info, add it to equipment
+                    if (item.slot) {
+                        const [location, slotIndex] = item.slot.split(':');
+                        if (!equipment[location]) {
+                            equipment[location] = [];
+                        }
+                        equipment[location][parseInt(slotIndex)] = item.id;
                     }
-                }
-                
-                // Clean up items
-                const cleanItems = regularItems.map(item => {
-                    const { username: itemUsername, available, ...cleanItem } = item;
+                    
+                    // Return clean item without backend fields
+                    const { username: itemUsername, available, slot, ...cleanItem } = item;
                     return cleanItem;
                 });
                 
