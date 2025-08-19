@@ -27,7 +27,10 @@ const authenticateToken = (req, res, next) => {
         
         const decoded = JSON.parse(decodedString);
         if (decoded && decoded.userId) {
-            req.user = { id: decoded.userId };
+            req.user = { 
+                id: decoded.userId,
+                username: decoded.username 
+            };
             next();
         } else {
             console.error('Invalid token structure:', decoded);

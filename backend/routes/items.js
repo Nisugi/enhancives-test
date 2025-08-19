@@ -131,27 +131,31 @@ router.delete('/:id', async (req, res) => {
 router.post('/sync', authenticateToken, async (req, res) => {
     try {
         const { items, equipment } = req.body;
-        const userId = req.user?.id; // Get from auth middleware
+        const username = req.user?.username;
         
-        if (!userId) {
+        if (!username) {
             return res.status(401).json({ error: 'User not authenticated' });
         }
         
         await dbOperation(async (db) => {
             if (db.from) { // Supabase
-                // Delete existing items for this user
+                // Delete existing personal items for this user (not marketplace items)
                 await db
                     .from('items')
                     .delete()
-                    .eq('user_id', userId);
+                    .eq('username', username)
+                    .eq('available', false);
                 
-                // Insert new items with user_id and equipment data
+                // Insert items using existing table structure (same as marketplace)
                 if (items && items.length > 0) {
                     const itemsWithUser = items.map(item => ({
-                        ...item,
-                        user_id: userId,
-                        equipment_data: equipment,
-                        synced_at: new Date().toISOString()
+                        name: item.name,
+                        location: item.location,
+                        permanence: item.permanence,
+                        notes: item.notes || '',
+                        targets: item.targets,
+                        username: username,
+                        available: false // Personal items, not marketplace items
                     }));
                     
                     const { error } = await db
@@ -160,19 +164,48 @@ router.post('/sync', authenticateToken, async (req, res) => {
                     
                     if (error) throw error;
                 }
+                
+                // Store equipment data as a special item
+                if (equipment && Object.keys(equipment).length > 0) {
+                    const { error } = await db
+                        .from('items')
+                        .insert([{
+                            name: '__EQUIPMENT_DATA__',
+                            location: 'system',
+                            permanence: 'Persists',
+                            notes: JSON.stringify(equipment),
+                            targets: [],
+                            username: username,
+                            available: false
+                        }]);
+                    
+                    if (error) throw error;
+                }
             } else { // Development mode
-                // Remove old items for this user
-                db.items = db.items.filter(item => item.user_id != userId);
+                // Remove old personal items for this user
+                db.items = db.items.filter(item => item.username != username || item.available === true);
                 
                 // Add new items
                 if (items && items.length > 0) {
                     const itemsWithUser = items.map(item => ({
                         ...item,
-                        user_id: userId,
-                        equipment_data: equipment,
-                        synced_at: new Date().toISOString()
+                        username: username,
+                        available: false
                     }));
                     db.items.push(...itemsWithUser);
+                }
+                
+                // Add equipment data
+                if (equipment && Object.keys(equipment).length > 0) {
+                    db.items.push({
+                        name: '__EQUIPMENT_DATA__',
+                        location: 'system',
+                        permanence: 'Persists',
+                        notes: JSON.stringify(equipment),
+                        targets: [],
+                        username: username,
+                        available: false
+                    });
                 }
             }
         });
@@ -187,40 +220,41 @@ router.post('/sync', authenticateToken, async (req, res) => {
 // Sync items - Load from cloud
 router.get('/sync', authenticateToken, async (req, res) => {
     try {
-        const userId = req.user?.id; // Get from auth middleware
+        const username = req.user?.username;
         
-        if (!userId) {
+        if (!username) {
             return res.status(401).json({ error: 'User not authenticated' });
         }
         
         const result = await dbOperation(async (db) => {
             if (db.from) { // Supabase
-                const { data, error } = await db
+                // Get all personal items for this user
+                const { data: allData, error } = await db
                     .from('items')
                     .select('*')
-                    .eq('user_id', userId)
-                    .order('synced_at', { ascending: false })
-                    .limit(1);
+                    .eq('username', username)
+                    .eq('available', false);
                 
                 if (error) throw error;
                 
-                if (data && data.length > 0) {
-                    // Get the most recent sync
-                    const latestSync = data[0];
-                    const equipment = latestSync.equipment_data || {};
+                if (allData && allData.length > 0) {
+                    // Separate equipment data from regular items
+                    const equipmentItem = allData.find(item => item.name === '__EQUIPMENT_DATA__');
+                    const regularItems = allData.filter(item => item.name !== '__EQUIPMENT_DATA__');
                     
-                    // Get all items from this sync session
-                    const { data: allItems, error: itemsError } = await db
-                        .from('items')
-                        .select('*')
-                        .eq('user_id', userId)
-                        .eq('synced_at', latestSync.synced_at);
-                    
-                    if (itemsError) throw itemsError;
+                    // Parse equipment data
+                    let equipment = {};
+                    if (equipmentItem && equipmentItem.notes) {
+                        try {
+                            equipment = JSON.parse(equipmentItem.notes);
+                        } catch (e) {
+                            console.error('Failed to parse equipment data:', e);
+                        }
+                    }
                     
                     // Clean up items to remove backend-specific fields
-                    const cleanItems = allItems.map(item => {
-                        const { user_id, equipment_data, synced_at, ...cleanItem } = item;
+                    const cleanItems = regularItems.map(item => {
+                        const { username: itemUsername, available, created_at, ...cleanItem } = item;
                         return cleanItem;
                     });
                     
@@ -228,16 +262,29 @@ router.get('/sync', authenticateToken, async (req, res) => {
                 }
                 return { items: [], equipment: {} };
             } else { // Development mode
-                const userItems = db.items.filter(item => item.user_id == userId);
-                if (userItems.length > 0) {
-                    const equipment = userItems[0].equipment_data || {};
-                    const cleanItems = userItems.map(item => {
-                        const { user_id, equipment_data, synced_at, ...cleanItem } = item;
-                        return cleanItem;
-                    });
-                    return { items: cleanItems, equipment };
+                const userItems = db.items.filter(item => item.username == username && item.available === false);
+                
+                // Separate equipment data from regular items
+                const equipmentItem = userItems.find(item => item.name === '__EQUIPMENT_DATA__');
+                const regularItems = userItems.filter(item => item.name !== '__EQUIPMENT_DATA__');
+                
+                // Parse equipment data
+                let equipment = {};
+                if (equipmentItem && equipmentItem.notes) {
+                    try {
+                        equipment = JSON.parse(equipmentItem.notes);
+                    } catch (e) {
+                        console.error('Failed to parse equipment data:', e);
+                    }
                 }
-                return { items: [], equipment: {} };
+                
+                // Clean up items
+                const cleanItems = regularItems.map(item => {
+                    const { username: itemUsername, available, ...cleanItem } = item;
+                    return cleanItem;
+                });
+                
+                return { items: cleanItems, equipment };
             }
         });
         

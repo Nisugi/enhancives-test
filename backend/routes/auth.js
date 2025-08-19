@@ -57,8 +57,11 @@ router.post('/register', async (req, res) => {
             }
         });
 
-        // Generate a simple token containing user ID
-        const tokenData = { userId: result.id };
+        // Generate a simple token containing user ID and username
+        const tokenData = { 
+            userId: result.id, 
+            username: result.username 
+        };
         const tokenString = JSON.stringify(tokenData);
         const token = Buffer.from(tokenString).toString('base64');
         
@@ -119,8 +122,11 @@ router.post('/login', async (req, res) => {
             }
         });
 
-        // Generate a simple token containing user ID
-        const tokenData = { userId: result.id };
+        // Generate a simple token containing user ID and username
+        const tokenData = { 
+            userId: result.id, 
+            username: result.username 
+        };
         const tokenString = JSON.stringify(tokenData);
         const token = Buffer.from(tokenString).toString('base64');
         
