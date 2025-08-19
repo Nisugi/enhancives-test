@@ -48,9 +48,9 @@ const ItemsModule = (() => {
                     Enhancive Targets (1-6)
                 </label>
                 <div id="targetsContainer"></div>
-                <div style="display: flex; gap: 10px; margin-top: 10px;">
-                    <button class="btn btn-add-target" onclick="ItemsModule.addTargetRow()" style="flex: 1;">+ Add Target</button>
-                    <button class="btn btn-primary" onclick="ItemsModule.saveItem()" style="flex: 2;">Save Item</button>
+                <div style="display: flex; gap: 10px; margin-top: 10px; align-items: stretch;">
+                    <button class="btn btn-add-target" onclick="ItemsModule.addTargetRow()" style="flex: 1; height: 48px; min-height: 48px;">+ Add Target</button>
+                    <button class="btn btn-primary" onclick="ItemsModule.saveItem()" style="flex: 1; height: 48px; min-height: 48px;">Save Item</button>
                 </div>
             </div>
         `;

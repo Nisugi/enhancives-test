@@ -278,7 +278,6 @@ body {
 .btn-add-target {
     background: var(--success);
     color: white;
-    margin-top: 10px;
 }
 
 .remove-target-btn {
