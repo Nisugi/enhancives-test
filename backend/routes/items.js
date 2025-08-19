@@ -315,6 +315,7 @@ router.get('/sync', authenticateToken, async (req, res) => {
             }
         });
         
+        console.log('Final result being sent:', result);
         res.json(result);
     } catch (error) {
         console.error('Sync load error:', error);

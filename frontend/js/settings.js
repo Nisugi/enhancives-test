@@ -140,10 +140,11 @@ const SettingsModule = (() => {
             console.log('Token:', token);
             console.log('API URL:', `${Config.API_URL}/items/sync`);
             
-            const response = await fetch(`${Config.API_URL}/items/sync`, {
+            const response = await fetch(`${Config.API_URL}/items/sync?t=${Date.now()}`, {
                 method: 'GET',
                 headers: {
-                    'Authorization': `Bearer ${token}`
+                    'Authorization': `Bearer ${token}`,
+                    'Cache-Control': 'no-cache'
                 }
             });
             
