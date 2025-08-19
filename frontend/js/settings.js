@@ -124,7 +124,7 @@ const SettingsModule = (() => {
         
         const statusEl = document.getElementById('syncStatus');
         
-        if (!confirm('This will replace your local data with data from the cloud. Continue?')) {
+        if (!confirm('This will merge your cloud data with your local data. Continue?')) {
             console.log('User cancelled sync from cloud');
             return;
         }
@@ -161,23 +161,86 @@ const SettingsModule = (() => {
             console.log('Response data:', data);
             
             if (data.items && data.items.length > 0) {
-                // Save the cloud data locally
-                DataModule.saveItems(data.items);
+                // Merge cloud data with local data using deduplication
+                const currentItems = DataModule.getItems();
+                const cloudItems = data.items;
                 
+                // Create a function to generate a unique key for deduplication
+                const createItemKey = (item) => {
+                    const targetKey = item.targets ? 
+                        item.targets.map(t => `${t.target}:${t.type}:${t.amount}`).sort().join('|') : 
+                        '';
+                    return `${item.name}::${targetKey}`;
+                };
+                
+                // Create a map of existing items for deduplication
+                const existingItemsMap = new Map();
+                currentItems.forEach(item => {
+                    existingItemsMap.set(createItemKey(item), item);
+                });
+                
+                // Merge cloud items, deduplicating based on name + targets
+                let addedCount = 0;
+                let duplicateCount = 0;
+                
+                cloudItems.forEach(cloudItem => {
+                    const itemKey = createItemKey(cloudItem);
+                    
+                    if (!existingItemsMap.has(itemKey)) {
+                        // New item - add it
+                        const newItem = DataModule.addItem(cloudItem);
+                        existingItemsMap.set(itemKey, newItem);
+                        addedCount++;
+                    } else {
+                        duplicateCount++;
+                    }
+                });
+                
+                // Merge equipment data if provided
                 if (data.equipment) {
-                    DataModule.saveEquipment(data.equipment);
+                    const currentEquipment = DataModule.getEquipment();
+                    const mergedEquipment = { ...currentEquipment };
+                    
+                    // Only merge equipment slots that have items in them from cloud
+                    for (const [location, slots] of Object.entries(data.equipment)) {
+                        if (mergedEquipment[location]) {
+                            slots.forEach((itemId, slotIndex) => {
+                                if (itemId) {
+                                    // Find the corresponding item in our merged item list
+                                    const allItems = DataModule.getItems();
+                                    const foundItem = allItems.find(item => 
+                                        cloudItems.some(cloudItem => 
+                                            cloudItem.id === itemId && createItemKey(item) === createItemKey(cloudItem)
+                                        )
+                                    );
+                                    if (foundItem) {
+                                        mergedEquipment[location][slotIndex] = foundItem.id;
+                                    }
+                                }
+                            });
+                        }
+                    }
+                    
+                    DataModule.saveEquipment(mergedEquipment);
                 }
                 
-                // Refresh all modules
+                // Refresh all modules including stats
                 if (typeof ItemsModule !== 'undefined') ItemsModule.refresh();
                 if (typeof EquipmentModule !== 'undefined') EquipmentModule.refresh();
                 if (typeof TotalsModule !== 'undefined') TotalsModule.refresh();
+                if (typeof StatsModule !== 'undefined') StatsModule.updateStats();
                 if (typeof CopiesModule !== 'undefined') CopiesModule.init();
                 
-                if (statusEl) {
-                    statusEl.innerHTML = `✅ Loaded from cloud! ${data.items.length} items restored at ${new Date().toLocaleTimeString()}`;
+                // Show detailed merge results
+                let message = `Merged ${addedCount} new items from cloud`;
+                if (duplicateCount > 0) {
+                    message += `, skipped ${duplicateCount} duplicates`;
                 }
-                UI.showNotification(`Loaded ${data.items.length} items from cloud!`, 'success');
+                
+                if (statusEl) {
+                    statusEl.innerHTML = `✅ ${message} at ${new Date().toLocaleTimeString()}`;
+                }
+                UI.showNotification(message, 'success');
             } else {
                 if (statusEl) statusEl.innerHTML = '⚠️ No data found in cloud';
                 UI.showNotification('No data found in cloud', 'warning');
