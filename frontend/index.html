@@ -57,7 +57,17 @@
                         <h2 class="section-title" style="margin: 0;">Your Items</h2>
                         <span id="totalItemsCount" style="color: var(--gray); font-weight: 600;"></span>
                     </div>
-                    <input type="text" class="search-bar" placeholder="🔍 Search items..." onkeyup="ItemsModule.searchItems(this.value)">
+                    <div style="display: flex; gap: 10px; margin-bottom: 15px; align-items: center;">
+                        <input type="text" class="search-bar" placeholder="🔍 Search items..." onkeyup="ItemsModule.searchItems(this.value)" style="flex: 2;">
+                        <select id="itemsSortSelect" onchange="ItemsModule.sortItems(this.value)" style="flex: 1; height: 40px;">
+                            <option value="">Sort by...</option>
+                            <option value="name">Name</option>
+                            <option value="location">Location</option>
+                            <option value="targets">Target Count</option>
+                            <option value="permanence">Permanence</option>
+                            <option value="total">Total Enhancement</option>
+                        </select>
+                    </div>
                     <div id="itemsList" class="items-grid"></div>
                 </div>
             </div>

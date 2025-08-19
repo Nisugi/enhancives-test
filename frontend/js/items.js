@@ -383,6 +383,103 @@ const ItemsModule = (() => {
         UI.showNotification('Copy created! Visit the Copies tab to modify swap targets.', 'success');
     };
     
+    const sortItems = (sortBy) => {
+        if (!sortBy) {
+            renderItemsList(); // Reset to original order
+            return;
+        }
+        
+        const items = DataModule.getItems();
+        let sortedItems = [...items];
+        
+        switch (sortBy) {
+            case 'name':
+                sortedItems.sort((a, b) => a.name.localeCompare(b.name));
+                break;
+            case 'location':
+                sortedItems.sort((a, b) => a.location.localeCompare(b.location));
+                break;
+            case 'targets':
+                sortedItems.sort((a, b) => (b.targets?.length || 0) - (a.targets?.length || 0));
+                break;
+            case 'permanence':
+                // Sort by permanence: Persists, Temporary
+                const permOrder = { 'Persists': 0, 'Temporary': 1 };
+                sortedItems.sort((a, b) => permOrder[a.permanence] - permOrder[b.permanence]);
+                break;
+            case 'total':
+                // Sort by total enhancement value
+                sortedItems.sort((a, b) => {
+                    const totalA = a.targets?.reduce((sum, t) => sum + Math.abs(t.amount), 0) || 0;
+                    const totalB = b.targets?.reduce((sum, t) => sum + Math.abs(t.amount), 0) || 0;
+                    return totalB - totalA; // Descending order
+                });
+                break;
+        }
+        
+        renderSortedItemsList(sortedItems);
+    };
+    
+    const renderSortedItemsList = (sortedItems) => {
+        const container = document.getElementById('itemsList');
+        
+        // Update total items count
+        const countElement = document.getElementById('totalItemsCount');
+        if (countElement) {
+            countElement.textContent = `${sortedItems.length} items`;
+        }
+        
+        if (sortedItems.length === 0) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <h3>No items yet</h3>
+                    <p>Add your first enhancive item using the form on the left</p>
+                </div>
+            `;
+            return;
+        }
+        
+        container.innerHTML = sortedItems.map(item => `
+            <div class="item-card" data-item-id="${item.id}">
+                <div class="item-header">
+                    <div>
+                        <div class="item-name">${item.name}</div>
+                        <div style="color: var(--gray); font-size: 0.9em;">ID: ${item.id}</div>
+                    </div>
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <div class="item-location">${item.location}</div>
+                        <span class="permanence-badge ${item.permanence.toLowerCase()}">
+                            ${item.permanence}
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="enhancive-list">
+                    ${item.targets.map(t => 
+                        `<span class="enhancive-item">${t.target} ${t.amount > 0 ? '+' : ''}${t.amount} ${t.type}</span>`
+                    ).join('')}
+                </div>
+                
+                ${item.notes ? `
+                    <div style="margin-top: 10px; padding: 10px; background: white; border-radius: 5px; color: var(--gray); font-size: 0.9em; font-style: italic;">
+                        ${item.notes}
+                    </div>
+                ` : ''}
+                
+                <div class="item-actions">
+                    <button class="btn ${item.isListed ? 'btn-warning' : 'btn-success'}" 
+                            onclick="ItemsModule.toggleListed(${item.id})" 
+                            style="flex: 1; padding: 8px 16px; font-size: 0.9em;">
+                        ${item.isListed ? '📤 Unlist' : '🏪 List'}
+                    </button>
+                    <button class="btn btn-secondary" onclick="ItemsModule.makeCopy(${item.id})" style="flex: 1; padding: 8px 16px; font-size: 0.9em;">📋 Copy</button>
+                    <button class="btn btn-danger" onclick="ItemsModule.deleteItem(${item.id})" style="flex: 1; padding: 8px 16px; font-size: 0.9em;">Delete</button>
+                    <button class="btn btn-primary" onclick="ItemsModule.editItem(${item.id})" style="flex: 1; padding: 8px 16px; font-size: 0.9em;">Edit</button>
+                </div>
+            </div>
+        `).join('');
+    };
+    
     return {
         init,
         refresh: () => {
@@ -396,6 +493,7 @@ const ItemsModule = (() => {
         editNotes,
         deleteItem,
         searchItems,
+        sortItems,
         toggleListed,
         makeCopy
     };
