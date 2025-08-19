@@ -312,12 +312,9 @@ const EquipmentModule = (() => {
         });
         
         container.innerHTML = `
-            <div class="equipment-stats" style="background: var(--light); padding: 15px; border-radius: 8px; margin-bottom: 15px;">
-                <div style="display: flex; justify-content: space-between; flex-wrap: wrap; gap: 15px; font-size: 0.9em;">
-                    <span><strong>${equipmentStats.totalEquipped}</strong> items equipped</span>
-                    <span><strong>${equipmentStats.filledSlots}</strong> / 57 slots filled</span>
-                    <span><strong>${equipmentStats.totalTargets}</strong> targets active</span>
-                    <span><strong>+${equipmentStats.totalEnhancement}</strong> total enhancement</span>
+            <div class="equipment-stats" style="background: var(--light); padding: 15px; border-radius: 8px; margin-bottom: 15px; text-align: center;">
+                <div style="font-size: 1em; color: var(--dark); font-weight: 600;">
+                    ${equipmentStats.filledSlots}/57 slots • ${equipmentStats.totalTargets} targets • +${equipmentStats.totalEnhancement} enhanced
                 </div>
             </div>
             <div class="summary-grid">

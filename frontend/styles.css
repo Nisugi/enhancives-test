@@ -379,7 +379,7 @@ body {
     grid-template-columns: 1fr 1fr;
     gap: 30px;
     align-items: stretch;
-    min-height: 600px;
+    min-height: 640px;
 }
 
 @media (max-width: 1200px) {
@@ -866,9 +866,10 @@ body {
         font-size: 2em;
     }
     
-    /* Hide stats bar on mobile */
-    .stats-bar {
-        display: none;
+    
+    /* Disable sticky behavior on mobile */
+    .panel-sticky {
+        position: static;
     }
     
     .nav-tabs {
