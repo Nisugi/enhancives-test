@@ -30,7 +30,11 @@ router.post('/register', async (req, res) => {
 
                 const { data, error } = await db
                     .from('users')
-                    .insert([{ username, password_hash: hashedPassword }])
+                    .insert([{ 
+                        username, 
+                        password_hash: hashedPassword,
+                        dateAdded: new Date().toISOString()
+                    }])
                     .select()
                     .single();
 

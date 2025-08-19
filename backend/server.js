@@ -10,6 +10,7 @@ const port = process.env.PORT || 10000;
 const authRoutes = require('./routes/auth');
 const itemRoutes = require('./routes/items');
 const marketplaceRoutes = require('./routes/marketplace');
+const loadoutRoutes = require('./routes/loadouts');
 
 // Database initialization
 const { initDatabase, getDb } = require('./config/database');
@@ -39,6 +40,7 @@ app.get('/health', (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/items', itemRoutes);
 app.use('/api/marketplace', marketplaceRoutes);
+app.use('/api/loadouts', loadoutRoutes);
 
 // 404 handler for undefined routes
 app.use((req, res) => {

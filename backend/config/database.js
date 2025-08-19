@@ -4,7 +4,8 @@ let supabase = null;
 let devStorage = {
     users: [],
     items: [],
-    marketplaceItems: []
+    marketplaceItems: [],
+    loadouts: []
 };
 
 function initDatabase() {

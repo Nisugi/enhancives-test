@@ -40,7 +40,6 @@
             <button class="nav-tab active" onclick="UI.switchTab('items')">📦 Items</button>
             <button class="nav-tab" onclick="UI.switchTab('equipment')">⚔️ Equipment</button>
             <button class="nav-tab" onclick="UI.switchTab('totals')">📊 Totals</button>
-            <button class="nav-tab" onclick="UI.switchTab('analysis')">📈 Analysis</button>
             <button class="nav-tab" onclick="UI.switchTab('copies')">🧙‍♂️ Sylinaar</button>
             <button class="nav-tab" id="marketplaceTab" onclick="UI.switchTab('marketplace')" style="display: none;">🏪 Marketplace</button>
             <button class="nav-tab" onclick="UI.switchTab('settings')">⚙️ Settings</button>
@@ -90,6 +89,16 @@
             <div class="equipment-layout">
                 <div class="panel">
                     <h2 class="section-title">Equipment Slots (57 Total)</h2>
+                    <div class="equipment-controls">
+                        <div style="display: flex; gap: 10px; margin-bottom: 15px; align-items: center; flex-wrap: wrap;">
+                            <select id="loadoutSelect" style="flex: 1; min-width: 150px;">
+                                <option value="">Select Loadout...</option>
+                            </select>
+                            <button class="btn btn-primary" onclick="EquipmentModule.loadLoadout()" style="white-space: nowrap;">Load</button>
+                            <button class="btn btn-success" onclick="EquipmentModule.saveLoadout()" style="white-space: nowrap;">Save</button>
+                            <button class="btn btn-danger" onclick="EquipmentModule.unequipAll()" style="white-space: nowrap;">Unequip All</button>
+                        </div>
+                    </div>
                     <div id="equipmentSlots" class="slots-container"></div>
                 </div>
                 <div class="panel">
@@ -110,14 +119,6 @@
                     <h2 class="section-title">Cap Analysis</h2>
                     <div id="capAnalysis"></div>
                 </div>
-            </div>
-        </div>
-        
-        <!-- Analysis Tab -->
-        <div id="analysis-tab" class="tab-panel">
-            <div class="panel">
-                <h2 class="section-title">Analysis & Optimization</h2>
-                <div id="analysisContent"></div>
             </div>
         </div>
         
@@ -157,7 +158,6 @@
     <script src="js/items.js"></script>
     <script src="js/equipment.js"></script>
     <script src="js/totals.js"></script>
-    <script src="js/analysis.js"></script>
     <script src="js/copies.js"></script>
     <script src="js/settings.js"></script>
     <script src="js/auth.js"></script>
