@@ -44,9 +44,14 @@ const MarketplaceModule = (() => {
                 <div class="panel">
                     <h2 class="section-title">Your Listed Items</h2>
                     <div id="userListings"></div>
-                    <button class="btn btn-primary" onclick="MarketplaceModule.updateMarketplace()" style="margin-top: 20px;">
-                        🔄 Update Marketplace
-                    </button>
+                    <div style="margin-top: 20px; display: flex; gap: 10px;">
+                        <button class="btn btn-success" onclick="MarketplaceModule.listAllUnequipped()" style="flex: 1;">
+                            📋 List All Unequipped
+                        </button>
+                        <button class="btn btn-primary" onclick="MarketplaceModule.updateMarketplace()" style="flex: 1;">
+                            🔄 Update Marketplace
+                        </button>
+                    </div>
                 </div>
                 
                 <div class="panel">
@@ -294,6 +299,48 @@ const MarketplaceModule = (() => {
         }
     };
     
+    const listAllUnequipped = () => {
+        if (!AuthModule.isAuthenticated()) {
+            UI.showNotification('Please login to list items', 'warning');
+            AuthModule.showLoginModal();
+            return;
+        }
+        
+        const items = DataModule.getItems();
+        const equippedItems = DataModule.getEquippedItems();
+        const equippedItemIds = new Set(equippedItems.map(item => item.id));
+        
+        // Find all unequipped items
+        const unequippedItems = items.filter(item => !equippedItemIds.has(item.id));
+        
+        if (unequippedItems.length === 0) {
+            UI.showNotification('No unequipped items to list', 'info');
+            return;
+        }
+        
+        // Mark all unequipped items as listed
+        let listedCount = 0;
+        unequippedItems.forEach(item => {
+            if (!item.isListed) {
+                item.isListed = true;
+                DataModule.editItem(item.id, item);
+                listedCount++;
+            }
+        });
+        
+        if (listedCount === 0) {
+            UI.showNotification('All unequipped items are already listed', 'info');
+        } else {
+            UI.showNotification(`${listedCount} unequipped items marked for listing`, 'success');
+            renderUserListings();
+            
+            // Refresh items module if visible
+            if (typeof ItemsModule !== 'undefined') {
+                ItemsModule.refresh();
+            }
+        }
+    };
+    
     return {
         init,
         enable,
@@ -303,6 +350,7 @@ const MarketplaceModule = (() => {
         updateMarketplace,
         searchMarketplace,
         copyItem,
-        unlistItem
+        unlistItem,
+        listAllUnequipped
     };
 })();
