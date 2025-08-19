@@ -212,22 +212,11 @@ const AuthModule = (() => {
             // Get local items
             const items = DataModule.getItems();
             
-            // Send to server
-            const response = await fetch(`${Config.API_URL}/items/sync`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${authToken}`
-                },
-                body: JSON.stringify({ items })
-            });
-            
-            const data = await response.json();
-            
-            if (data.success) {
-                UI.showNotification('Data synced successfully!', 'success');
+            // Use marketplace sync instead since /items/sync doesn't exist
+            if (typeof MarketplaceModule !== 'undefined') {
+                await MarketplaceModule.updateMarketplace();
             } else {
-                UI.showNotification('Sync failed: ' + (data.error || 'Unknown error'), 'error');
+                UI.showNotification('Marketplace not available', 'warning');
             }
         } catch (error) {
             console.error('Sync error:', error);
