@@ -4,28 +4,33 @@ const EquipmentModule = (() => {
     let showMarketplaceItems = {}; // Track which slots show marketplace items
     let marketplaceItems = []; // Cache marketplace items
     
-    const init = () => {
-        loadMarketplaceItems();
+    const init = async () => {
+        await loadMarketplaceItems();
         renderEquipmentSlots();
     };
     
     const loadMarketplaceItems = async () => {
         if (!AuthModule.isAuthenticated()) {
             marketplaceItems = [];
+            console.log('Not authenticated, clearing marketplace items');
             return;
         }
         
         try {
+            console.log('Loading marketplace items...');
             const response = await fetch(`${Config.API_URL}/marketplace/items`, {
                 headers: AuthModule.getAuthHeaders()
             });
             
             if (response.ok) {
                 const data = await response.json();
+                console.log('Raw marketplace data:', data);
                 const currentUser = AuthModule.getCurrentUser();
                 // Exclude user's own items
                 marketplaceItems = (data || []).filter(item => item.username !== currentUser.username);
+                console.log('Filtered marketplace items:', marketplaceItems);
             } else {
+                console.error('Failed to fetch marketplace items:', response.status, response.statusText);
                 marketplaceItems = [];
             }
         } catch (error) {
@@ -92,6 +97,7 @@ const EquipmentModule = (() => {
                 
                 if (showMarketplaceItems[slotKey]) {
                     // Show marketplace items
+                    console.log(`Showing marketplace items for ${slotKey}, total marketplace items:`, marketplaceItems.length);
                     availableItems = [...marketplaceItems];
                     
                     if (!showAllItems[slotKey]) {
@@ -105,6 +111,7 @@ const EquipmentModule = (() => {
                         } else {
                             availableItems = availableItems.filter(item => item.location === location);
                         }
+                        console.log(`Filtered marketplace items for ${location}:`, availableItems.length);
                     }
                 } else {
                     // Show user's own items
@@ -234,8 +241,14 @@ const EquipmentModule = (() => {
         renderEquipmentSlots();
     };
     
-    const toggleMarketplace = (slotKey) => {
+    const toggleMarketplace = async (slotKey) => {
         showMarketplaceItems[slotKey] = !showMarketplaceItems[slotKey];
+        
+        // Reload marketplace items when enabling marketplace view
+        if (showMarketplaceItems[slotKey]) {
+            await loadMarketplaceItems();
+        }
+        
         renderEquipmentSlots();
     };
     
