@@ -49,7 +49,7 @@ router.post('/register', async (req, res) => {
                     id: Date.now(),
                     username,
                     password_hash: hashedPassword,
-                    created_at: new Date().toISOString()
+                    dateAdded: new Date().toISOString()
                 };
 
                 db.users.push(newUser);

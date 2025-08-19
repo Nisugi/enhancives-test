@@ -48,7 +48,7 @@ router.post('/', async (req, res) => {
                 const newItem = {
                     ...itemData,
                     id: Date.now(),
-                    created_at: new Date().toISOString()
+                    dateAdded: new Date().toISOString()
                 };
                 db.items.push(newItem);
                 return newItem;

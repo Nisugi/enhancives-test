@@ -236,7 +236,7 @@ const MarketplaceModule = (() => {
                 user_id: currentUser.id,
                 username: currentUser.username,
                 available: true,
-                dateAdded: item.created_at || new Date().toISOString()
+                dateAdded: item.dateAdded || new Date().toISOString()
             }));
             
             const response = await fetch(`${Config.API_URL}/marketplace/sync`, {
