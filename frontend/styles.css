@@ -224,16 +224,6 @@ body {
 }
 
 /* ==================== ENHANCIVE TARGETS ==================== */
-.target-row {
-    display: grid;
-    grid-template-columns: 2fr 1fr 1fr 40px;
-    gap: 10px;
-    margin-bottom: 10px;
-    padding: 10px;
-    background: #f8f9fa;
-    border-radius: 8px;
-    animation: slideIn 0.3s ease;
-}
 
 @keyframes slideIn {
     from { opacity: 0; transform: translateX(-20px); }
@@ -352,7 +342,7 @@ body {
     font-weight: 600;
 }
 
-.permanence-badge.permanent {
+.permanence-badge.persists {
     background: #c6f6d5;
     color: #22543d;
 }
@@ -511,17 +501,44 @@ body {
     height: 12px;
 }
 
-/* Remove spinner buttons from number inputs */
+/* Remove spinner buttons from number inputs and control width */
 .amount-input {
     width: 60px !important;
+    max-width: 60px !important;
+    min-width: 60px !important;
     -webkit-appearance: none;
     -moz-appearance: textfield;
+    box-sizing: border-box;
+    padding: 4px 6px;
+    margin: 0;
 }
 
 .amount-input::-webkit-outer-spin-button,
 .amount-input::-webkit-inner-spin-button {
     -webkit-appearance: none;
     margin: 0;
+    display: none;
+}
+
+/* Ensure target rows don't overflow */
+.target-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr 60px 40px;
+    gap: 10px;
+    margin-bottom: 10px;
+    padding: 10px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    animation: slideIn 0.3s ease;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+.target-row .amount-input {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
 }
 
 /* ==================== TOTALS TAB STYLES ==================== */

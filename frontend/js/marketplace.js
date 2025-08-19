@@ -191,13 +191,12 @@ const MarketplaceModule = (() => {
                             Listed by: ${item.username}
                         </div>
                     </div>
-                    <div class="item-location">${item.location}</div>
-                </div>
-                
-                <div style="margin: 10px 0;">
-                    <span class="permanence-badge ${item.permanence.toLowerCase()}">
-                        ${item.permanence}
-                    </span>
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <div class="item-location">${item.location}</div>
+                        <span class="permanence-badge ${item.permanence.toLowerCase()}">
+                            ${item.permanence}
+                        </span>
+                    </div>
                 </div>
                 
                 <div class="enhancive-list">

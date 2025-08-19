@@ -33,7 +33,7 @@ const Constants = {
     },
     
     boostTypes: ["Base", "Bonus", "Ranks", "Recovery"],
-    permanenceTypes: ["Permanent", "Crumbly"],
+    permanenceTypes: ["Persists", "Crumbly"],
     statCap: 40,
     skillCap: 50,
     resourceCaps: {

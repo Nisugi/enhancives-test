@@ -79,7 +79,7 @@ const ItemsModule = (() => {
             <select class="type-select">
                 ${Constants.boostTypes.map(type => `<option value="${type}">${type}</option>`).join('')}
             </select>
-            <input type="number" class="amount-input" placeholder="" min="-50" max="50" style="width: 60px;">
+            <input type="number" class="amount-input" placeholder="" min="-50" max="50">
             <button class="remove-target-btn" onclick="ItemsModule.removeTarget(this)">✕</button>
         `;
         
@@ -150,7 +150,7 @@ const ItemsModule = (() => {
     const clearForm = () => {
         document.getElementById('itemName').value = '';
         document.getElementById('itemLocation').value = '';
-        document.getElementById('itemPermanence').value = 'Permanent';
+        document.getElementById('itemPermanence').value = 'Persists';
         document.getElementById('itemNotes').value = '';
         document.getElementById('targetsContainer').innerHTML = '';
         addTargetRow();
@@ -177,13 +177,12 @@ const ItemsModule = (() => {
                         <div class="item-name">${item.name}</div>
                         <div style="color: var(--gray); font-size: 0.9em;">ID: ${item.id}</div>
                     </div>
-                    <div class="item-location">${item.location}</div>
-                </div>
-                
-                <div style="margin-bottom: 10px;">
-                    <span class="permanence-badge ${item.permanence.toLowerCase()}">
-                        ${item.permanence}
-                    </span>
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <div class="item-location">${item.location}</div>
+                        <span class="permanence-badge ${item.permanence.toLowerCase()}">
+                            ${item.permanence}
+                        </span>
+                    </div>
                 </div>
                 
                 <div class="enhancive-list">
