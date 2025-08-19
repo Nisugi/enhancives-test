@@ -391,7 +391,7 @@ body {
 .slots-container {
     display: grid;
     gap: 10px;
-    height: calc(100% - 60px); /* Subtract space for section title */
+    height: calc(100% - 140px); /* Subtract space for section title and controls */
     overflow-y: auto;
     padding-right: 10px;
 }
