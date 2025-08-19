@@ -40,30 +40,44 @@ const MarketplaceModule = (() => {
         }
         
         container.innerHTML = `
-            <div class="marketplace-layout">
-                <div class="panel">
-                    <h2 class="section-title">Your Listed Items</h2>
-                    <div id="userListings"></div>
-                    <div style="margin-top: 20px; display: flex; gap: 10px;">
-                        <button class="btn btn-success" onclick="MarketplaceModule.listAllUnequipped()" style="flex: 1;">
-                            📋 List All Unequipped
-                        </button>
-                        <button class="btn btn-primary" onclick="MarketplaceModule.updateMarketplace()" style="flex: 1;">
-                            🔄 Update Marketplace
-                        </button>
+            <div class="marketplace-tabs">
+                <div class="tab-navigation">
+                    <button class="tab-btn active" onclick="MarketplaceModule.switchMarketplaceTab('listings')">
+                        📋 My Listings
+                    </button>
+                    <button class="tab-btn" onclick="MarketplaceModule.switchMarketplaceTab('browse')">
+                        🛒 Browse Items
+                    </button>
+                </div>
+                
+                <div id="marketplace-listings-tab" class="marketplace-tab-panel active">
+                    <div class="panel">
+                        <div style="margin-bottom: 20px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
+                            <button class="btn btn-success" onclick="MarketplaceModule.listAllUnequipped()">
+                                📋 List All Unequipped
+                            </button>
+                            <button class="btn btn-warning" onclick="MarketplaceModule.unlistAll()">
+                                📤 Unlist All
+                            </button>
+                            <button class="btn btn-primary" onclick="MarketplaceModule.updateMarketplace()">
+                                🔄 Update Marketplace
+                            </button>
+                        </div>
+                        <div id="userListings"></div>
                     </div>
                 </div>
                 
-                <div class="panel">
-                    <h2 class="section-title">Available Items</h2>
-                    <div class="search-bar-container">
-                        <input type="text" class="search-bar" placeholder="🔍 Search marketplace..." 
-                               onkeyup="MarketplaceModule.searchMarketplace(this.value)">
-                        <button class="btn btn-primary" onclick="MarketplaceModule.loadMarketplace()">
-                            🔄 Refresh
-                        </button>
+                <div id="marketplace-browse-tab" class="marketplace-tab-panel">
+                    <div class="panel">
+                        <div class="search-bar-container" style="margin-bottom: 20px;">
+                            <input type="text" class="search-bar" placeholder="🔍 Search marketplace..." 
+                                   onkeyup="MarketplaceModule.searchMarketplace(this.value)">
+                            <button class="btn btn-primary" onclick="MarketplaceModule.loadMarketplace()">
+                                🔄 Refresh
+                            </button>
+                        </div>
+                        <div id="marketplaceItems"></div>
                     </div>
-                    <div id="marketplaceItems"></div>
                 </div>
             </div>
         `;
@@ -341,6 +355,55 @@ const MarketplaceModule = (() => {
         }
     };
     
+    const unlistAll = () => {
+        if (!AuthModule.isAuthenticated()) {
+            UI.showNotification('Please login to manage listings', 'warning');
+            AuthModule.showLoginModal();
+            return;
+        }
+        
+        const items = DataModule.getItems();
+        const listedItems = items.filter(item => item.isListed);
+        
+        if (listedItems.length === 0) {
+            UI.showNotification('No items are currently listed', 'info');
+            return;
+        }
+        
+        // Unlist all items
+        listedItems.forEach(item => {
+            item.isListed = false;
+            DataModule.editItem(item.id, item);
+        });
+        
+        UI.showNotification(`${listedItems.length} items unlisted from marketplace`, 'success');
+        renderUserListings();
+        
+        // Refresh items module if visible
+        if (typeof ItemsModule !== 'undefined') {
+            ItemsModule.refresh();
+        }
+    };
+    
+    const switchMarketplaceTab = (tabName) => {
+        // Update tab buttons
+        document.querySelectorAll('.marketplace-tabs .tab-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        document.querySelector(`[onclick="MarketplaceModule.switchMarketplaceTab('${tabName}')"]`).classList.add('active');
+        
+        // Update tab panels
+        document.querySelectorAll('.marketplace-tab-panel').forEach(panel => {
+            panel.classList.remove('active');
+        });
+        
+        if (tabName === 'listings') {
+            document.getElementById('marketplace-listings-tab').classList.add('active');
+        } else if (tabName === 'browse') {
+            document.getElementById('marketplace-browse-tab').classList.add('active');
+        }
+    };
+    
     return {
         init,
         enable,
@@ -351,6 +414,8 @@ const MarketplaceModule = (() => {
         searchMarketplace,
         copyItem,
         unlistItem,
-        listAllUnequipped
+        listAllUnequipped,
+        unlistAll,
+        switchMarketplaceTab
     };
 })();

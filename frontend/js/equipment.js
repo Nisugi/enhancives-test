@@ -49,7 +49,7 @@ const EquipmentModule = (() => {
         // Define premium/platinum rules for each location
         const getSlotLabel = (location, slotIndex, totalSlots) => {
             if (totalSlots === 1) {
-                return location === 'Tattoo' ? 'Mystic Tattoo' : 'Single';
+                return 'Single';
             }
             
             const slotNum = slotIndex + 1;

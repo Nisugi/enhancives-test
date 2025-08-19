@@ -79,7 +79,7 @@ const ItemsModule = (() => {
             <select class="type-select">
                 ${Constants.boostTypes.map(type => `<option value="${type}">${type}</option>`).join('')}
             </select>
-            <input type="number" class="amount-input" placeholder="Amount" min="1" max="50">
+            <input type="number" class="amount-input" placeholder="" min="-50" max="50" style="width: 60px;">
             <button class="remove-target-btn" onclick="ItemsModule.removeTarget(this)">✕</button>
         `;
         

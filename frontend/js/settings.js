@@ -12,11 +12,11 @@ const SettingsModule = (() => {
                 <div class="stat-group">
                     <div class="stat-group-title">Data Management</div>
                     
-                    <div style="margin: 20px 0;">
-                        <button class="btn btn-primary" onclick="DataModule.exportData()" style="margin-right: 10px;">
+                    <div style="margin: 20px 0; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
+                        <button class="btn btn-primary" onclick="DataModule.exportData()">
                             📥 Export Data
                         </button>
-                        <button class="btn btn-primary" onclick="DataModule.importData()" style="margin-right: 10px;">
+                        <button class="btn btn-primary" onclick="DataModule.importData()">
                             📤 Import Data
                         </button>
                         <button class="btn btn-danger" onclick="DataModule.clearAllData()">
@@ -43,21 +43,6 @@ const SettingsModule = (() => {
                     </div>
                 </div>
                 
-                <div class="stat-group" style="margin-top: 30px;">
-                    <div class="stat-group-title">Quick Actions</div>
-                    
-                    <div style="margin: 20px 0;">
-                        <button class="btn btn-primary" onclick="UI.switchTab('items')" style="margin-right: 10px;">
-                            📦 Go to Items
-                        </button>
-                        <button class="btn btn-primary" onclick="UI.switchTab('equipment')" style="margin-right: 10px;">
-                            ⚔️ Go to Equipment
-                        </button>
-                        <button class="btn btn-primary" onclick="UI.switchTab('totals')">
-                            📊 View Totals
-                        </button>
-                    </div>
-                </div>
             </div>
         `;
     };
