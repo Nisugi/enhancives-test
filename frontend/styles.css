@@ -534,7 +534,7 @@ body {
 /* Ensure target rows don't overflow */
 .target-row {
     display: grid;
-    grid-template-columns: 1fr 80px 50px 30px;
+    grid-template-columns: 1fr 65px 50px 30px;
     gap: 8px;
     margin-bottom: 10px;
     padding: 10px;
