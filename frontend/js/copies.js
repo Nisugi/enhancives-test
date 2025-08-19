@@ -41,7 +41,7 @@ const CopiesModule = {
                 <div class="item-header">
                     <div>
                         <div class="item-name">${copy.name}</div>
-                        <div style="color: var(--gray); font-size: 0.9em;">ID: ${copy.id}</div>
+                        <div style="color: var(--primary); font-size: 0.9em; font-weight: 600;">+${copy.targets?.reduce((sum, t) => sum + Math.abs(t.amount), 0) || 0} total enhancement</div>
                     </div>
                     <div style="display: flex; gap: 8px; align-items: center;">
                         <div class="item-location">${copy.location}</div>
@@ -57,11 +57,11 @@ const CopiesModule = {
                     ).join('')}
                 </div>
                 
-                <div class="button-group" style="margin-top: 10px;">
-                    <button class="btn btn-primary" onclick="CopiesModule.startEdit(${copy.id})">
+                <div class="button-group" style="margin-top: 15px; display: flex; gap: 8px; align-items: stretch;">
+                    <button class="btn btn-primary" onclick="CopiesModule.startEdit(${copy.id})" style="flex: 1; height: 36px; padding: 8px 12px; font-size: 0.9em;">
                         Edit Swaps
                     </button>
-                    <button class="btn btn-danger" onclick="CopiesModule.deleteCopy(${copy.id})">
+                    <button class="btn btn-danger" onclick="CopiesModule.deleteCopy(${copy.id})" style="flex: 1; height: 36px; padding: 8px 12px; font-size: 0.9em;">
                         Delete Copy
                     </button>
                 </div>
@@ -80,7 +80,7 @@ const CopiesModule = {
                 <div class="item-header">
                     <div>
                         <div class="item-name">${copy.name}</div>
-                        <div style="color: var(--gray); font-size: 0.9em;">ID: ${copy.id}</div>
+                        <div style="color: var(--primary); font-size: 0.9em; font-weight: 600;">+${copy.targets?.reduce((sum, t) => sum + Math.abs(t.amount), 0) || 0} total enhancement</div>
                     </div>
                     <div style="display: flex; gap: 8px; align-items: center;">
                         <select id="location-select-${copy.id}" class="form-select" style="width: auto;">
