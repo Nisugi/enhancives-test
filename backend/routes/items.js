@@ -221,10 +221,17 @@ router.post('/sync', authenticateToken, async (req, res) => {
 
 // Sync items - Load from cloud
 router.get('/sync', authenticateToken, async (req, res) => {
+    console.log('=== SYNC LOAD REQUEST RECEIVED ===');
+    console.log('Request headers:', req.headers);
+    console.log('User from middleware:', req.user);
+    
     try {
         const username = req.user?.username;
         
+        console.log('Extracted username:', username);
+        
         if (!username) {
+            console.log('Authentication failed - no username');
             return res.status(401).json({ error: 'User not authenticated' });
         }
         
