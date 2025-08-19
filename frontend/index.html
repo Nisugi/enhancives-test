@@ -90,13 +90,13 @@
                 <div class="panel">
                     <h2 class="section-title">Equipment Slots (57 Total)</h2>
                     <div class="equipment-controls">
-                        <div style="display: flex; gap: 10px; margin-bottom: 15px; align-items: center; flex-wrap: wrap;">
-                            <select id="loadoutSelect" style="flex: 1; min-width: 150px;">
+                        <div style="display: flex; gap: 10px; margin-bottom: 15px; align-items: stretch;">
+                            <select id="loadoutSelect" style="flex: 2; min-width: 150px; height: 48px;">
                                 <option value="">Select Loadout...</option>
                             </select>
-                            <button class="btn btn-primary" onclick="EquipmentModule.loadLoadout()" style="white-space: nowrap;">Load</button>
-                            <button class="btn btn-success" onclick="EquipmentModule.saveLoadout()" style="white-space: nowrap;">Save</button>
-                            <button class="btn btn-danger" onclick="EquipmentModule.unequipAll()" style="white-space: nowrap;">Unequip All</button>
+                            <button class="btn btn-primary" onclick="EquipmentModule.loadLoadout()" style="flex: 1; height: 48px; min-height: 48px;">Load</button>
+                            <button class="btn btn-success" onclick="EquipmentModule.saveLoadout()" style="flex: 1; height: 48px; min-height: 48px;">Save</button>
+                            <button class="btn btn-danger" onclick="EquipmentModule.unequipAll()" style="flex: 1; height: 48px; min-height: 48px;">Unequip All</button>
                         </div>
                     </div>
                     <div id="equipmentSlots" class="slots-container"></div>
