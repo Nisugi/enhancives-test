@@ -4,22 +4,22 @@ const router = express.Router();
 const { dbOperation } = require('../config/database');
 const { authenticateToken } = require('../middleware/auth');
 
-// Get items for a user
-router.get('/:userId', async (req, res) => {
+// Get items for a user  
+router.get('/:username', async (req, res) => {
     try {
-        const { userId } = req.params;
+        const { username } = req.params;
         
         const items = await dbOperation(async (db) => {
             if (db.from) { // Supabase
                 const { data, error } = await db
                     .from('items')
                     .select('*')
-                    .eq('user_id', userId);
+                    .eq('username', username);
 
                 if (error) throw error;
                 return data || [];
             } else { // Development mode
-                return db.items.filter(item => item.user_id == userId);
+                return db.items.filter(item => item.username == username);
             }
         });
 
