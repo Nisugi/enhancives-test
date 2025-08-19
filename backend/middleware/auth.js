@@ -21,9 +21,11 @@ const authenticateToken = (req, res, next) => {
             req.user = { id: decoded.userId };
             next();
         } else {
+            console.error('Invalid token structure:', decoded);
             res.status(403).json({ error: 'Invalid token' });
         }
     } catch (error) {
+        console.error('Token decode error:', error);
         res.status(403).json({ error: 'Invalid token' });
     }
 };
