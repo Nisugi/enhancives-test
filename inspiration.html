@@ -1,0 +1,2270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhancive Tracker Pro</title>
+    <style>
+        /* ==================== BASE STYLES ==================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary: #667eea;
+            --primary-dark: #5a67d8;
+            --secondary: #764ba2;
+            --success: #48bb78;
+            --danger: #f56565;
+            --warning: #ed8936;
+            --info: #4299e1;
+            --dark: #2d3748;
+            --light: #f7fafc;
+            --gray: #718096;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+        
+        /* ==================== HEADER STYLES ==================== */
+        .header {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        
+        .header h1 {
+            color: var(--dark);
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-align: center;
+        }
+        
+        .header p {
+            color: var(--gray);
+            font-size: 1.1em;
+            text-align: center;
+        }
+        
+        /* ==================== NAVIGATION TABS ==================== */
+        .nav-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            background: white;
+            padding: 10px;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            overflow-x: auto;
+        }
+        
+        .nav-tab {
+            padding: 12px 24px;
+            background: transparent;
+            border: 2px solid transparent;
+            border-radius: 8px;
+            color: var(--gray);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+        
+        .nav-tab:hover {
+            background: var(--light);
+        }
+        
+        .nav-tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: transparent;
+        }
+        
+        /* ==================== STATS BAR ==================== */
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        
+        .stat-card .value {
+            font-size: 2em;
+            font-weight: bold;
+            color: var(--primary);
+        }
+        
+        .stat-card .label {
+            color: var(--gray);
+            margin-top: 5px;
+        }
+        
+        /* ==================== TAB PANELS ==================== */
+        .tab-panel {
+            display: none;
+        }
+        
+        .tab-panel.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* ==================== ITEMS TAB STYLES ==================== */
+        .items-layout {
+            display: grid;
+            grid-template-columns: 400px 1fr;
+            gap: 30px;
+        }
+        
+        @media (max-width: 1024px) {
+            .items-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .panel {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        
+        .panel-sticky {
+            height: fit-content;
+            position: sticky;
+            top: 20px;
+        }
+        
+        .section-title {
+            font-size: 1.5em;
+            color: var(--dark);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--primary);
+        }
+        
+        /* ==================== FORM STYLES ==================== */
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--dark);
+            font-weight: 600;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: all 0.3s;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        /* ==================== ENHANCIVE TARGETS ==================== */
+        .target-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 40px;
+            gap: 10px;
+            margin-bottom: 10px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        
+        /* ==================== BUTTON STYLES ==================== */
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            width: 100%;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+        
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+        
+        .btn-add-target {
+            background: var(--success);
+            color: white;
+            margin-top: 10px;
+        }
+        
+        .remove-target-btn {
+            background: var(--danger);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* ==================== ITEM CARDS ==================== */
+        .search-bar {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 1em;
+        }
+        
+        .items-grid {
+            display: grid;
+            gap: 15px;
+        }
+        
+        .item-card {
+            padding: 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            background: #f8f9fa;
+            transition: all 0.3s;
+        }
+        
+        .item-card:hover {
+            border-color: var(--primary);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        .item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 15px;
+        }
+        
+        .item-name {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: var(--dark);
+        }
+        
+        .item-location {
+            display: inline-block;
+            padding: 5px 10px;
+            background: var(--primary);
+            color: white;
+            border-radius: 5px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+        
+        .permanence-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+        
+        .permanence-badge.permanent {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+        
+        .permanence-badge.crumbly {
+            background: #fed7d7;
+            color: #742a2a;
+        }
+        
+        .enhancive-item {
+            display: inline-block;
+            padding: 5px 10px;
+            margin: 3px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px;
+            font-size: 0.85em;
+        }
+        
+        /* ==================== EQUIPMENT TAB STYLES ==================== */
+        .equipment-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+        
+        @media (max-width: 1200px) {
+            .equipment-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .slots-container {
+            display: grid;
+            gap: 10px;
+            max-height: 800px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+        
+        .slot-row {
+            display: grid;
+            grid-template-columns: 120px 120px 1fr 80px 40px;
+            gap: 10px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            align-items: center;
+            transition: all 0.3s;
+        }
+        
+        .slot-row:hover {
+            background: #e2e8f0;
+            transform: translateX(5px);
+        }
+        
+        .slot-location {
+            font-weight: 600;
+            color: var(--dark);
+        }
+        
+        .slot-number {
+            color: var(--gray);
+            font-size: 0.9em;
+        }
+        
+        .slot-number.premium {
+            color: #9f7aea;
+            font-weight: 600;
+        }
+        
+        .slot-number.platinum {
+            color: #ed8936;
+            font-weight: 600;
+        }
+        
+        .slot-item-select {
+            padding: 8px;
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 0.95em;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .slot-item-select.has-item {
+            background: linear-gradient(135deg, #667eea20 0%, #764ba220 100%);
+            border-color: var(--primary);
+            font-weight: 600;
+        }
+        
+        .slot-item-select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .slot-status {
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.85em;
+            font-weight: 600;
+            text-align: center;
+        }
+        
+        .slot-status.filled {
+            background: var(--success);
+            color: white;
+        }
+        
+        .slot-status.empty {
+            background: var(--gray);
+            color: white;
+        }
+        
+        .unequip-btn {
+            background: var(--danger);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 8px;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .slot-row:hover .unequip-btn.active {
+            opacity: 1;
+        }
+        
+        /* ==================== TOTALS TAB STYLES ==================== */
+        .totals-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+        
+        @media (max-width: 1200px) {
+            .totals-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .stat-group {
+            margin-bottom: 30px;
+        }
+        
+        .stat-group-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: var(--dark);
+            margin-bottom: 15px;
+            padding: 10px;
+            background: linear-gradient(135deg, #667eea20 0%, #764ba220 100%);
+            border-radius: 8px;
+        }
+        
+        .stat-row {
+            display: grid;
+            grid-template-columns: 200px 100px 1fr 80px;
+            gap: 15px;
+            align-items: center;
+            padding: 10px;
+            margin-bottom: 8px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+        
+        .stat-row:hover {
+            background: #e2e8f0;
+            transform: translateX(5px);
+        }
+        
+        .stat-name {
+            font-weight: 600;
+            color: var(--dark);
+        }
+        
+        .stat-value {
+            font-size: 1.1em;
+            font-weight: bold;
+            text-align: center;
+        }
+        
+        .stat-value.normal {
+            color: var(--dark);
+        }
+        
+        .stat-value.warning {
+            color: var(--warning);
+        }
+        
+        .stat-value.capped {
+            color: var(--success);
+        }
+        
+        .stat-value.overcap {
+            color: var(--danger);
+        }
+        
+        .progress-bar {
+            height: 24px;
+            background: #e2e8f0;
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4299e1 0%, #667eea 100%);
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            padding: 0 10px;
+            color: white;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+        
+        .progress-fill.capped {
+            background: linear-gradient(90deg, #48bb78 0%, #38a169 100%);
+        }
+        
+        .progress-fill.overcap {
+            background: linear-gradient(90deg, #f56565 0%, #e53e3e 100%);
+        }
+        
+        .stat-cap {
+            font-size: 0.9em;
+            color: var(--gray);
+            text-align: center;
+        }
+        
+        /* ==================== MODAL STYLES ==================== */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 2000;
+            animation: fadeIn 0.3s;
+        }
+        
+        .modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s;
+        }
+        
+        @keyframes slideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        .modal-header {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: var(--dark);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--primary);
+        }
+        
+        .modal-close {
+            float: right;
+            font-size: 1.5em;
+            cursor: pointer;
+            color: var(--gray);
+        }
+        
+        .modal-close:hover {
+            color: var(--danger);
+        }
+        
+        .equipped-summary {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            min-height: 400px;
+        }
+        
+        .summary-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: var(--dark);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--primary);
+        }
+        
+        .summary-grid {
+            display: grid;
+            gap: 10px;
+        }
+        
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 6px;
+        }
+        
+        .summary-target {
+            font-weight: 600;
+            color: var(--dark);
+        }
+        
+        .summary-value {
+            color: var(--primary);
+            font-weight: bold;
+        }
+        
+        /* ==================== NOTIFICATION ==================== */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            background: var(--success);
+            color: white;
+            border-radius: 8px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            transform: translateX(400px);
+            transition: transform 0.3s;
+            z-index: 1000;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        /* ==================== EMPTY STATE ==================== */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--gray);
+        }
+        
+        .empty-state h3 {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>⚔️ Enhancive Tracker Pro ⚔️</h1>
+            <p>Complete Enhancive Management System</p>
+        </div>
+        
+        <!-- Navigation Tabs -->
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="UI.switchTab('items')">📦 Items</button>
+            <button class="nav-tab" onclick="UI.switchTab('equipment')">⚔️ Equipment</button>
+            <button class="nav-tab" onclick="UI.switchTab('totals')">📊 Totals</button>
+            <button class="nav-tab" onclick="UI.switchTab('analysis')">📈 Analysis</button>
+            <button class="nav-tab" onclick="UI.switchTab('settings')">⚙️ Settings</button>
+        </div>
+        
+        <!-- Statistics Bar -->
+        <div class="stats-bar">
+            <div class="stat-card">
+                <div class="value" id="totalItems">0</div>
+                <div class="label">Total Items</div>
+            </div>
+            <div class="stat-card">
+                <div class="value" id="totalEquipped">0</div>
+                <div class="label">Equipped</div>
+            </div>
+            <div class="stat-card">
+                <div class="value" id="filledSlots">0</div>
+                <div class="label">Slots Filled</div>
+            </div>
+            <div class="stat-card">
+                <div class="value" id="totalEnhancives">0</div>
+                <div class="label">Active Enhancives</div>
+            </div>
+            <div class="stat-card">
+                <div class="value" id="cappedStats">0</div>
+                <div class="label">Capped Stats</div>
+            </div>
+        </div>
+        
+        <!-- Items Tab -->
+        <div id="items-tab" class="tab-panel active">
+            <div class="items-layout">
+                <div class="panel panel-sticky">
+                    <h2 class="section-title">Add New Item</h2>
+                    <div id="itemForm"></div>
+                </div>
+                <div class="panel">
+                    <h2 class="section-title">Your Items</h2>
+                    <input type="text" class="search-bar" placeholder="🔍 Search items..." onkeyup="ItemsModule.searchItems(this.value)">
+                    <div id="itemsList" class="items-grid"></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Equipment Tab -->
+        <div id="equipment-tab" class="tab-panel">
+            <div class="equipment-layout">
+                <div class="panel">
+                    <h2 class="section-title">Equipment Slots (57 Total)</h2>
+                    <div id="equipmentSlots" class="slots-container"></div>
+                </div>
+                <div class="panel">
+                    <h2 class="section-title">Equipped Enhancives Summary</h2>
+                    <div id="equippedSummary" class="equipped-summary"></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Totals Tab -->
+        <div id="totals-tab" class="tab-panel">
+            <div class="totals-layout">
+                <div class="panel">
+                    <h2 class="section-title">Stats & Skills Progress</h2>
+                    <div id="totalsContent"></div>
+                </div>
+                <div class="panel">
+                    <h2 class="section-title">Cap Analysis</h2>
+                    <div id="capAnalysis"></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Analysis Tab -->
+        <div id="analysis-tab" class="tab-panel">
+            <div class="panel">
+                <h2 class="section-title">Analysis & Optimization</h2>
+                <p>Coming soon: Advanced analytics and optimization suggestions</p>
+            </div>
+        </div>
+        
+        <!-- Settings Tab -->
+        <div id="settings-tab" class="tab-panel">
+            <div class="panel">
+                <h2 class="section-title">Settings & Data Management</h2>
+                <button class="btn btn-primary" onclick="DataModule.exportData()">Export Data</button>
+                <button class="btn btn-primary" onclick="DataModule.importData()">Import Data</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="notification" class="notification"></div>
+    
+    <script>
+        // ==================== DATA MODULE ====================
+        const DataModule = (() => {
+            // Private data
+            let items = [];
+            let equipment = {};
+            let nextId = 1;
+            
+            // Initialize equipment slots
+            const wearLocations = {
+                "Pin": 8, "Head": 1, "Hair": 1, "Ear": 3, "Ears": 3, "Neck": 5,
+                "Shoulder": 2, "Cloak": 1, "Front": 1, "Chest": 1, "Undershirt": 1,
+                "Back": 1, "Arm": 1, "Wrist": 4, "Hands": 1, "Finger": 4,
+                "Waist": 1, "Belt": 3, "Legs": 1, "Pants": 1, "Leggings": 1,
+                "Ankle": 1, "Feet": 1, "Socks": 1, "Locus": 1, "Tattoo": 1,
+                "Right Hand": 1, "Left Hand": 1
+            };
+            
+            // Initialize equipment object
+            for (const [location, count] of Object.entries(wearLocations)) {
+                equipment[location] = Array(count).fill(null);
+            }
+            
+
+            // Load data from localStorage
+            const loadData = () => {
+                try {
+                    const savedItems = localStorage.getItem('enhanciveItems');
+                    const savedEquipment = localStorage.getItem('enhanciveEquipment');
+                    
+                    if (savedItems) {
+                        items = JSON.parse(savedItems);
+                        nextId = items.length > 0 ? Math.max(...items.map(i => i.id)) + 1 : 1;
+                    }
+                    
+                    if (savedEquipment) {
+                        equipment = JSON.parse(savedEquipment);
+                    }
+                } catch (error) {
+                    console.warn('LocalStorage not available, using in-memory storage');
+                    // Initialize with empty data
+                    items = [];
+                    nextId = 1;
+                }
+            };
+            
+            // Save data to localStorage
+            const saveData = () => {
+                localStorage.setItem('enhanciveItems', JSON.stringify(items));
+                localStorage.setItem('enhanciveEquipment', JSON.stringify(equipment));
+            };
+            
+            // Public API
+            return {
+                init: loadData,
+                
+                getItems: () => [...items],
+                getItem: (id) => items.find(i => i.id === id),
+                getEquipment: () => ({...equipment}),
+                getWearLocations: () => ({...wearLocations}),
+                
+                addItem: (itemData) => {
+                    const item = {
+                        id: nextId++,
+                        ...itemData,
+                        dateAdded: new Date().toISOString()
+                    };
+                    items.push(item);
+                    saveData();
+                    return item;
+                },
+                
+                editItem: (id, updates) => {
+                    const itemIndex = items.findIndex(i => i.id === id);
+                    if (itemIndex !== -1) {
+                        items[itemIndex] = { ...items[itemIndex], ...updates };
+                        saveData();
+                        return items[itemIndex];
+                    }
+                    return null;
+                },
+
+                deleteItem: (id) => {
+                    // Remove from items
+                    items = items.filter(i => i.id !== id);
+                    
+                    // Remove from equipment
+                    for (const location in equipment) {
+                        equipment[location] = equipment[location].map(slot => 
+                            slot === id ? null : slot
+                        );
+                    }
+                    
+                    saveData();
+                },
+                
+                equipItem: (itemId, location, slotIndex) => {
+                    // Unequip from any other slot first
+                    for (const loc in equipment) {
+                        equipment[loc] = equipment[loc].map(slot => 
+                            slot === itemId ? null : slot
+                        );
+                    }
+                    
+                    // Equip in new slot
+                    if (itemId && location && slotIndex !== undefined) {
+                        equipment[location][slotIndex] = itemId;
+                    }
+                    
+                    saveData();
+                },
+                
+                unequipItem: (location, slotIndex) => {
+                    equipment[location][slotIndex] = null;
+                    saveData();
+                },
+                
+                exportData: () => {
+                    const data = { items, equipment, version: "1.0" };
+                    const dataStr = JSON.stringify(data, null, 2);
+                    const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+                    const filename = `enhancive_backup_${new Date().toISOString().split('T')[0]}.json`;
+                    
+                    const link = document.createElement('a');
+                    link.setAttribute('href', dataUri);
+                    link.setAttribute('download', filename);
+                    link.click();
+                    
+                    UI.showNotification('Data exported successfully!');
+                },
+                
+                importData: () => {
+                    const input = document.createElement('input');
+                    input.type = 'file';
+                    input.accept = '.json';
+                    
+                    input.onchange = e => {
+                        const file = e.target.files[0];
+                        const reader = new FileReader();
+                        
+                        reader.onload = event => {
+                            try {
+                                const data = JSON.parse(event.target.result);
+                                items = data.items || [];
+                                equipment = data.equipment || equipment;
+                                saveData();
+                                
+                                // Refresh all displays
+                                ItemsModule.refresh();
+                                EquipmentModule.refresh();
+                                StatsModule.updateStats();
+                                
+                                UI.showNotification('Data imported successfully!');
+                            } catch (error) {
+                                UI.showNotification('Error importing data', 'error');
+                            }
+                        };
+                        
+                        reader.readAsText(file);
+                    };
+                    
+                    input.click();
+                }
+            };
+        })();
+        
+        // ==================== CONSTANTS MODULE ====================
+        const Constants = {
+            locations: ["Pin", "Head", "Hair", "Ear", "Ears", "Neck", "Shoulder", "Cloak", 
+                       "Front", "Chest", "Undershirt", "Back", "Arm", "Wrist", "Hands", 
+                       "Finger", "Waist", "Belt", "Legs", "Pants", "Leggings", "Ankle", 
+                       "Feet", "Socks", "Locus", "Tattoo", "Weapon", "Shield", "Off-Hand"],
+
+            resources:["Max Health", "Max Mana", "Max Spirit", "Max Stamina",
+                      "Health Recovery", "Mana Recovery", "Spirit Recovery", "Stamina Recovery"],
+                       
+            stats: ["Strength", "Constitution", "Dexterity", "Agility", "Discipline",
+                   "Aura", "Logic", "Intuition", "Wisdom", "Influence"],
+                   
+            skills: {
+                "Armor & Weapons": ["Armor Use", "Shield Use"],
+                "Combat": ["Edged Weapons", "Blunt Weapons", "Two-Handed Weapons", "Ranged Weapons",
+                          "Thrown Weapons", "Polearm Weapons", "Brawling", "Ambush", 
+                          "Two Weapon Combat", "Combat Maneuvers", "Multi Opponent Combat",
+                          "Physical Fitness", "Dodging"],
+                "General": ["Survival", "Disarming Traps", "Picking Locks", "Stalking and Hiding",
+                           "Perception", "Climbing", "Swimming", "First Aid", "Trading", "Pickpocketing"],
+                "Magic": ["Arcane Symbols", "Magic Item Use", "Spell Aiming", "Harness Power",
+                         "Elemental Mana Control", "Mental Mana Control", "Spirit Mana Control", 
+                         "Spell Research"],
+                "Elemental Lore": ["Elemental Lore - Air", "Elemental Lore - Earth", 
+                                  "Elemental Lore - Fire", "Elemental Lore - Water"],
+                "Spiritual Lore": ["Spiritual Lore - Blessings", "Spiritual Lore - Religion", 
+                                  "Spiritual Lore - Summoning"],
+                "Sorcerous Lore": ["Sorcerous Lore - Demonology", "Sorcerous Lore - Necromancy"],
+                "Mental Lore": ["Mental Lore - Divination", "Mental Lore - Manipulation",
+                               "Mental Lore - Telepathy", "Mental Lore - Transference", 
+                               "Mental Lore - Transformation"]
+            },
+            
+            boostTypes: ["Base", "Bonus", "Ranks", "Recovery"],
+            permanenceTypes: ["Permanent", "Crumbly"],
+            statCap: 40,
+            skillCap: 50,
+            resourceCaps: {
+                "Max Health": 300,
+                "Max Stamina": 300,
+                "Max Mana": 600,
+                "Max Spirit": 3,
+                "Health Regen": 50,
+                "Mana Recovery": 50,
+                "Spirit Recovery": 3,
+                "Stamina Recovery": 50
+            }
+        };
+        
+        // ==================== UI MODULE ====================
+        const UI = (() => {
+            const switchTab = (tabName) => {
+                // Update tab buttons
+                document.querySelectorAll('.nav-tab').forEach(tab => {
+                    tab.classList.remove('active');
+                });
+                event.target.classList.add('active');
+                
+                // Update tab panels
+                document.querySelectorAll('.tab-panel').forEach(panel => {
+                    panel.classList.remove('active');
+                });
+                document.getElementById(`${tabName}-tab`).classList.add('active');
+                
+                // Refresh content if needed
+                if (tabName === 'equipment') {
+                    EquipmentModule.refresh();
+                } else if (tabName === 'totals') {
+                    TotalsModule.refresh();
+                }
+            };
+            
+            const showNotification = (message, type = 'success') => {
+                const notification = document.getElementById('notification');
+                notification.textContent = message;
+                notification.className = 'notification show';
+                
+                const colors = {
+                    success: 'var(--success)',
+                    error: 'var(--danger)',
+                    warning: 'var(--warning)',
+                    info: 'var(--info)'
+                };
+                
+                notification.style.background = colors[type] || colors.success;
+                
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                }, 3000);
+            };
+            
+            const createTargetOptions = () => {
+                let options = '<option value="">Select Target...</option>';
+                
+                // Add stats
+                options += '<optgroup label="Stats">';
+                Constants.stats.forEach(stat => {
+                    options += `<option value="${stat}">${stat}</option>`;
+                });
+                options += '</optgroup>';
+                
+                // Add skills by category
+                for (const [category, skills] of Object.entries(Constants.skills)) {
+                    options += `<optgroup label="${category}">`;
+                    skills.forEach(skill => {
+                        options += `<option value="${skill}">${skill}</option>`;
+                    });
+                    options += '</optgroup>';
+                }
+
+                options += '<optgroup label="Resources">';
+                Constants.resources.forEach(resource => {
+                    options += `<option value="${resource}">${resource}</option>`;
+                });
+                options += '</optgroup>';
+                
+                return options;
+            };
+            
+            return {
+                switchTab,
+                showNotification,
+                createTargetOptions
+            };
+        })();
+        
+        // ==================== ITEMS MODULE ====================
+        const ItemsModule = (() => {
+            let targetCount = 1;
+            
+            const init = () => {
+                renderForm();
+                renderItemsList();
+            };
+            
+            const renderForm = () => {
+                const formHtml = `
+                    <div class="form-group">
+                        <label>Item Name</label>
+                        <input type="text" id="itemName" placeholder="e.g., Dragon Scale Armor">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Location</label>
+                        <select id="itemLocation">
+                            <option value="">Select Location...</option>
+                            ${Constants.locations.map(loc => `<option value="${loc}">${loc}</option>`).join('')}
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Permanence</label>
+                        <select id="itemPermanence">
+                            ${Constants.permanenceTypes.map(type => `<option value="${type}">${type}</option>`).join('')}
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Notes (Optional)</label>
+                        <textarea id="itemNotes" placeholder="Any additional notes..."></textarea>
+                    </div>
+                    
+                    <div class="enhancive-targets">
+                        <label style="font-weight: 600; color: var(--dark); margin-bottom: 10px; display: block;">
+                            Enhancive Targets (1-6)
+                        </label>
+                        <div id="targetsContainer"></div>
+                        <button class="btn btn-add-target" onclick="ItemsModule.addTargetRow()">+ Add Target</button>
+                    </div>
+                    
+                    <button class="btn btn-primary" onclick="ItemsModule.saveItem()">Save Item</button>
+                `;
+                
+                document.getElementById('itemForm').innerHTML = formHtml;
+                
+                // Add initial target row
+                addTargetRow();
+            };
+            
+            const addTargetRow = () => {
+                const container = document.getElementById('targetsContainer');
+                const rows = container.querySelectorAll('.target-row');
+                
+                if (rows.length >= 6) {
+                    UI.showNotification('Maximum 6 targets per item', 'warning');
+                    return;
+                }
+                
+                const newRow = document.createElement('div');
+                newRow.className = 'target-row';
+                newRow.innerHTML = `
+                    <select class="target-select">
+                        ${UI.createTargetOptions()}
+                    </select>
+                    <select class="type-select">
+                        ${Constants.boostTypes.map(type => `<option value="${type}">${type}</option>`).join('')}
+                    </select>
+                    <input type="number" class="amount-input" placeholder="Amount" min="1" max="50">
+                    <button class="remove-target-btn" onclick="ItemsModule.removeTarget(this)">✕</button>
+                `;
+                
+                container.appendChild(newRow);
+                updateRemoveButtons();
+            };
+            
+            const removeTarget = (button) => {
+                button.parentElement.remove();
+                updateRemoveButtons();
+            };
+            
+            const updateRemoveButtons = () => {
+                const rows = document.querySelectorAll('.target-row');
+                rows.forEach(row => {
+                    const removeBtn = row.querySelector('.remove-target-btn');
+                    removeBtn.style.display = rows.length > 1 ? 'flex' : 'none';
+                });
+            };
+            
+            const saveItem = () => {
+                const name = document.getElementById('itemName').value.trim();
+                const location = document.getElementById('itemLocation').value;
+                const permanence = document.getElementById('itemPermanence').value;
+                const notes = document.getElementById('itemNotes').value.trim();
+                
+                // Validation
+                if (!name) {
+                    UI.showNotification('Please enter an item name', 'error');
+                    return;
+                }
+                
+                if (!location) {
+                    UI.showNotification('Please select a location', 'error');
+                    return;
+                }
+                
+                // Collect targets
+                const targets = [];
+                document.querySelectorAll('.target-row').forEach(row => {
+                    const target = row.querySelector('.target-select').value;
+                    const type = row.querySelector('.type-select').value;
+                    const amount = parseInt(row.querySelector('.amount-input').value);
+                    
+                    if (target && amount) {
+                        targets.push({ target, type, amount });
+                    }
+                });
+                
+                if (targets.length === 0) {
+                    UI.showNotification('Please add at least one enhancive target', 'error');
+                    return;
+                }
+                
+                // Add item
+                DataModule.addItem({ name, location, permanence, notes, targets });
+                
+                // Clear form
+                clearForm();
+                
+                // Refresh displays
+                renderItemsList();
+                StatsModule.updateStats();
+                
+                UI.showNotification(`${name} added successfully!`);
+            };
+            
+            const clearForm = () => {
+                document.getElementById('itemName').value = '';
+                document.getElementById('itemLocation').value = '';
+                document.getElementById('itemPermanence').value = 'Permanent';
+                document.getElementById('itemNotes').value = '';
+                document.getElementById('targetsContainer').innerHTML = '';
+                addTargetRow();
+            };
+            
+            const renderItemsList = () => {
+                const items = DataModule.getItems();
+                const container = document.getElementById('itemsList');
+                
+                if (items.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <h3>No items yet</h3>
+                            <p>Add your first enhancive item using the form on the left</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                container.innerHTML = items.map(item => `
+                    <div class="item-card" data-item-id="${item.id}">
+                        <div class="item-header">
+                            <div>
+                                <div class="item-name">${item.name}</div>
+                                <div style="color: var(--gray); font-size: 0.9em;">ID: ${item.id}</div>
+                            </div>
+                            <div class="item-location">${item.location}</div>
+                        </div>
+                        
+                        <div style="margin-bottom: 10px;">
+                            <span class="permanence-badge ${item.permanence.toLowerCase()}">
+                                ${item.permanence}
+                            </span>
+                        </div>
+                        
+                        <div class="enhancive-list">
+                            ${item.targets.map(t => 
+                                `<span class="enhancive-item">${t.target} +${t.amount} ${t.type}</span>`
+                            ).join('')}
+                        </div>
+                        
+                        ${item.notes ? `<div style="margin-top: 10px; padding: 10px; background: white; border-radius: 5px; color: var(--gray); font-size: 0.9em; font-style: italic;">
+                            <span id="notes-${item.id}">${item.notes}</span>
+                            <button onclick="ItemsModule.editNotes(${item.id})" style="float: right; background: none; border: none; color: var(--primary); cursor: pointer;">✏️</button>
+                        </div>` : ''}
+
+                        <div style="margin-top: 15px; display: flex; gap: 10px;">
+                            <button class="btn btn-primary" onclick="ItemsModule.editItem(${item.id})" style="padding: 8px 16px; font-size: 0.9em;">Edit</button>
+                            <button class="btn btn-danger" onclick="ItemsModule.deleteItem(${item.id})">Delete</button>
+                        </div>
+                    </div>
+                `).join('');
+            };
+            
+            const deleteItem = (id) => {
+                if (confirm('Are you sure you want to delete this item?')) {
+                    DataModule.deleteItem(id);
+                    renderItemsList();
+                    EquipmentModule.refresh();
+                    StatsModule.updateStats();
+                    UI.showNotification('Item deleted');
+                }
+            };
+            
+            const searchItems = (query) => {
+                const cards = document.querySelectorAll('.item-card');
+                query = query.toLowerCase();
+                
+                cards.forEach(card => {
+                    const text = card.textContent.toLowerCase();
+                    card.style.display = text.includes(query) ? 'block' : 'none';
+                });
+            };
+            
+            return {
+                init,
+                refresh: () => {
+                    renderItemsList();
+                },
+                addTargetRow,
+                removeTarget,
+                saveItem,
+                editItem: (id) => {
+                    const item = DataModule.getItem(id);
+                    if (!item) return;
+
+                    // Make sure we're getting the right item by ID
+                    console.log('Editing item:', item);
+                    
+                    // Populate form with item data
+                    document.getElementById('itemName').value = item.name;
+                    document.getElementById('itemLocation').value = item.location;
+                    document.getElementById('itemPermanence').value = item.permanence;
+                    document.getElementById('itemNotes').value = item.notes || '';
+                    
+                    // Clear and populate targets
+                    const container = document.getElementById('targetsContainer');
+                    container.innerHTML = '';
+                    
+                    item.targets.forEach(target => {
+                        addTargetRow();
+                        const rows = container.querySelectorAll('.target-row');
+                        const lastRow = rows[rows.length - 1];
+                        lastRow.querySelector('.target-select').value = target.target;
+                        lastRow.querySelector('.type-select').value = target.type;
+                        lastRow.querySelector('.amount-input').value = target.amount;
+                    });
+                    
+                    updateRemoveButtons();
+                    
+                    // Change save button to update
+                    const saveBtn = document.querySelector('.btn-primary[onclick*="saveItem"]');
+                    saveBtn.textContent = 'Update Item';
+                    saveBtn.setAttribute('onclick', `ItemsModule.updateItem(${id})`);
+                    
+                    // Scroll to form
+                    document.getElementById('itemForm').scrollIntoView({ behavior: 'smooth' });
+                },
+                updateItem: (id) => {
+                    const name = document.getElementById('itemName').value.trim();
+                    const location = document.getElementById('itemLocation').value;
+                    const permanence = document.getElementById('itemPermanence').value;
+                    const notes = document.getElementById('itemNotes').value.trim();
+                    
+                    if (!name || !location) {
+                        UI.showNotification('Please enter item name and location', 'error');
+                        return;
+                    }
+                    
+                    const targets = [];
+                    document.querySelectorAll('.target-row').forEach(row => {
+                        const target = row.querySelector('.target-select').value;
+                        const type = row.querySelector('.type-select').value;
+                        const amount = parseInt(row.querySelector('.amount-input').value);
+                        
+                        if (target && amount) {
+                            targets.push({ target, type, amount });
+                        }
+                    });
+                    
+                    if (targets.length === 0) {
+                        UI.showNotification('Please add at least one enhancive target', 'error');
+                        return;
+                    }
+                    
+                    // Update item
+                    DataModule.editItem(id, { name, location, permanence, notes, targets });
+                    
+                    // Reset form
+                    clearForm();
+                    
+                    // Reset save button
+                    const saveBtn = document.querySelector('.btn-primary[onclick*="updateItem"]');
+                    saveBtn.textContent = 'Save Item';
+                    saveBtn.setAttribute('onclick', 'ItemsModule.saveItem()');
+                    
+                    // Refresh displays
+                    renderItemsList();
+                    EquipmentModule.refresh();
+                    StatsModule.updateStats();
+                    TotalsModule.refresh();
+                    
+                    UI.showNotification('Item updated successfully!');
+                },
+                editNotes: (id) => {
+                    const item = DataModule.getItem(id);
+                    const newNotes = prompt('Edit notes:', item.notes || '');
+                    if (newNotes !== null) {
+                        DataModule.editItem(id, { notes: newNotes });
+                        renderItemsList();
+                        UI.showNotification('Notes updated');
+                    }
+                },
+                deleteItem,
+                searchItems
+            };
+        })();
+        
+        // ==================== EQUIPMENT MODULE ====================
+        const EquipmentModule = (() => {
+            const init = () => {
+                renderSlots();
+                renderSummary();
+            };
+            
+            const renderSlots = () => {
+                const equipment = DataModule.getEquipment();
+                const wearLocations = DataModule.getWearLocations();
+                const items = DataModule.getItems();
+                const container = document.getElementById('equipmentSlots');
+                
+                let html = '';
+                
+                for (const [location, slotCount] of Object.entries(wearLocations)) {
+                    for (let i = 0; i < slotCount; i++) {
+                        const equippedId = equipment[location][i];
+                        const equippedItem = equippedId ? items.find(item => item.id === equippedId) : null;
+                        
+                        // Determine slot label and class
+                        let slotLabel = slotCount > 1 ? `Slot ${i + 1}` : 'Single';
+                        let slotClass = '';
+                        
+                        if (slotCount > 1) {
+                            if ((location === "Neck" && i >= 3) ||
+                                ((location === "Ear" || location === "Ears") && i >= 1) ||
+                                ((location === "Wrist" || location === "Finger") && i >= 2)) {
+                                if (i === slotCount - 2) {
+                                    slotLabel += " (Premium)";
+                                    slotClass = 'premium';
+                                } else if (i === slotCount - 1) {
+                                    slotLabel += " (Platinum)";
+                                    slotClass = 'platinum';
+                                }
+                            }
+                        }
+                        
+                        // Get available items for dropdown
+                        // Special handling for weapon/shield slots
+                        let availableItems;
+                        if (location === "Right Hand" || location === "Left Hand") {
+                            availableItems = items.filter(item => 
+                                item.location === "Weapon" || 
+                                item.location === "Shield" || 
+                                item.location === "Off-Hand"
+                            );
+                        } else {
+                            availableItems = items.filter(item => item.location === location);
+                        }
+                        
+                        // Calculate total bonus for each item
+                        availableItems = availableItems.map(item => {
+                            const totalBonus = item.targets.reduce((sum, t) => {
+                                let value = t.amount;
+                                if (Constants.stats.includes(t.target) && t.type === 'Bonus') {
+                                    value = t.amount * 2;
+                                }
+                                return sum + value;
+                            }, 0);
+                            return { ...item, totalBonus };
+                        });
+                        
+                        // Sort by total bonus descending
+                        availableItems.sort((a, b) => b.totalBonus - a.totalBonus);
+                        const options = availableItems.map(item => {
+                            const isEquipped = Object.values(equipment).some(slots => 
+                                slots.includes(item.id)
+                            );
+                            const disabled = isEquipped && item.id !== equippedId;
+                            return `<option value="${item.id}" ${item.id === equippedId ? 'selected' : ''} ${disabled ? 'disabled' : ''}>
+                                (${item.totalBonus}) ${item.name} ${disabled ? '(Equipped)' : ''} - ${item.targets.map(t => `${t.target} +${t.amount}`).join(', ')}
+                            </option>`;
+                        }).join('');
+                        
+                        html += `
+                            <div class="slot-row">
+                                <div class="slot-location">${location}</div>
+                                <div class="slot-number ${slotClass}">${slotLabel}</div>
+                                <select class="slot-item-select ${equippedItem ? 'has-item' : ''}"
+                                        id="slot-select-${location}-${i}" 
+                                        onchange="EquipmentModule.equipItem(this.value, '${location}', ${i})"
+                                        style="flex: 1;">
+                                    <option value="">-- Empty --</option>
+                                    ${options}
+                                </select>
+                                <div class="slot-status ${equippedItem ? 'filled' : 'empty'}">
+                                    ${equippedItem ? 'Filled' : 'Empty'}
+                                </div>
+                                <button class="unequip-btn ${equippedItem ? 'active' : ''}" 
+                                        onclick="EquipmentModule.unequip('${location}', ${i})"
+                                        style="${equippedItem ? '' : 'visibility: hidden;'}">
+                                    ✕
+                                </button>
+                                <input type="checkbox" id="nugget-${location}-${i}" 
+                                       onchange="EquipmentModule.toggleNugget('${location}', ${i})" 
+                                       title="Show all items regardless of location"
+                                       style="margin: 0 5px;">
+                                <label for="nugget-${location}-${i}" style="font-size: 0.8em; margin-right: 10px;">Nugget</label>
+                            </div>
+                        `;
+                    }
+                }
+                
+                container.innerHTML = html;
+            };
+            
+            const equipItem = (itemId, location, slotIndex) => {
+                if (itemId === "") {
+                    DataModule.unequipItem(location, slotIndex);
+                } else {
+                    DataModule.equipItem(parseInt(itemId), location, slotIndex);
+                }
+                refresh();
+                StatsModule.updateStats();
+                TotalsModule.refresh();
+            };
+            
+            const unequip = (location, slotIndex) => {
+                DataModule.unequipItem(location, slotIndex);
+                refresh();
+                StatsModule.updateStats();
+                TotalsModule.refresh();
+            };
+            
+            const renderSummary = () => {
+                const equipment = DataModule.getEquipment();
+                const items = DataModule.getItems();
+                const container = document.getElementById('equippedSummary');
+                
+                // Calculate totals
+                const totals = {};
+                
+                for (const slots of Object.values(equipment)) {
+                    for (const itemId of slots) {
+                        if (itemId) {
+                            const item = items.find(i => i.id === itemId);
+                            if (item) {
+                                item.targets.forEach(t => {
+                                    const key = `${t.target}|${t.type}`;
+                                    totals[key] = (totals[key] || 0) + t.amount;
+                                });
+                            }
+                        }
+                    }
+                }
+                
+                // Group by category
+                const statTotals = {};
+                const skillTotals = {};
+                
+                Object.entries(totals).forEach(([key, value]) => {
+                    const [target, type] = key.split('|');
+                    if (Constants.stats.includes(target)) {
+                        statTotals[key] = value;
+                    } else {
+                        skillTotals[key] = value;
+                    }
+                });
+                
+                // Render summary
+                if (Object.keys(totals).length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <h3>No items equipped</h3>
+                            <p>Select items from the dropdowns to equip them</p>
+                        </div>
+                    `;
+                } else {
+                    let html = '<div class="summary-title">Active Stat Enhancives</div><div class="summary-grid">';
+                    
+                    // Stats
+                    Object.entries(statTotals).sort().forEach(([key, value]) => {
+                        const [target, type] = key.split('|');
+                        const isCapped = value >= Constants.statCap;
+                        html += `
+                            <div class="summary-item">
+                                <span class="summary-target">${target}</span>
+                                <span class="summary-value" style="${isCapped ? 'color: var(--success);' : ''}">
+                                    +${value} ${type} ${isCapped ? '(CAP)' : ''}
+                                </span>
+                            </div>
+                        `;
+                    });
+                    
+                    html += '</div><div class="summary-title" style="margin-top: 20px;">Active Skill Enhancives</div><div class="summary-grid">';
+                    
+                    // Skills
+                    Object.entries(skillTotals).sort().forEach(([key, value]) => {
+                        const [target, type] = key.split('|');
+                        const isCapped = value >= Constants.skillCap;
+                        html += `
+                            <div class="summary-item">
+                                <span class="summary-target">${target}</span>
+                                <span class="summary-value" style="${isCapped ? 'color: var(--success);' : ''}">
+                                    +${value} ${type} ${isCapped ? '(CAP)' : ''}
+                                </span>
+                            </div>
+                        `;
+                    });
+                    
+                    html += '</div>';
+                    container.innerHTML = html;
+                }
+            };
+            
+            const refresh = () => {
+                renderSlots();
+                renderSummary();
+            };
+            
+            return {
+                init,
+                refresh,
+                equipItem,
+                unequip,
+                toggleNugget: (location, slotIndex) => {
+                    const checkbox = document.getElementById(`nugget-${location}-${slotIndex}`);
+                    const select = document.getElementById(`slot-select-${location}-${slotIndex}`);
+                    const equipment = DataModule.getEquipment();
+                    const items = DataModule.getItems();
+                    const equippedId = equipment[location][slotIndex];
+                    
+                    let availableItems;
+                    if (checkbox.checked) {
+                        // Show ALL items when nugget is checked
+                        availableItems = items;
+                    } else if (location === "Right Hand" || location === "Left Hand") {
+                        availableItems = items.filter(item => 
+                            item.location === "Weapon" || 
+                            item.location === "Shield" || 
+                            item.location === "Off-Hand"
+                        );
+                    } else {
+                        availableItems = items.filter(item => item.location === location);
+                    }
+                    
+                    // Calculate and sort by total bonus
+                    availableItems = availableItems.map(item => {
+                        const totalBonus = item.targets.reduce((sum, t) => {
+                            let value = t.amount;
+                            if (Constants.stats.includes(t.target) && t.type === 'Bonus') {
+                                value = t.amount * 2;
+                            }
+                            return sum + value;
+                        }, 0);
+                        return { ...item, totalBonus };
+                    }).sort((a, b) => b.totalBonus - a.totalBonus);
+                    
+                    // Rebuild options
+                    let options = '<option value="">-- Empty --</option>';
+                    availableItems.forEach(item => {
+                        const isEquipped = Object.values(equipment).some(slots => 
+                            slots.includes(item.id)
+                        );
+                        const disabled = isEquipped && item.id !== equippedId;
+                        options += `<option value="${item.id}" ${item.id === equippedId ? 'selected' : ''} ${disabled ? 'disabled' : ''}>
+                            (${item.totalBonus}) ${item.name} [${item.location}] ${disabled ? '(Equipped)' : ''}
+                        </option>`;
+                    });
+                    
+                    select.innerHTML = options;
+                }
+            };
+        })();
+        
+        // ==================== TOTALS MODULE ====================
+        const TotalsModule = (() => {
+            const refresh = () => {
+                const equipment = DataModule.getEquipment();
+                const items = DataModule.getItems();
+                const container = document.getElementById('totalsContent');
+                const analysisContainer = document.getElementById('capAnalysis');
+                
+                // Calculate all totals
+                const totals = {};
+                
+                for (const slots of Object.values(equipment)) {
+                    for (const itemId of slots) {
+                        if (itemId) {
+                            const item = items.find(i => i.id === itemId);
+                            if (item) {
+                                item.targets.forEach(t => {
+                                    let amount = t.amount;
+                                    // For stats: Base = +1 per point, Bonus = +2 per point
+                                    if (Constants.stats.includes(t.target)) {
+                                        if (t.type === 'Base') {
+                                            amount = t.amount * 1;  // Base counts as 1
+                                        } else if (t.type === 'Bonus') {
+                                            amount = t.amount * 2;  // Bonus counts as 2
+                                        }
+                                    } 
+                                    // For skills: Both Bonus and Ranks count as +1
+                                    else if (t.type === 'Ranks' || t.type === 'Bonus') {
+                                        amount = t.amount * 1;
+                                    }
+                                    
+                                    totals[t.target] = (totals[t.target] || 0) + amount;
+                                });
+                            }
+                        }
+                    }
+                }
+                
+                // Render stats section
+                let html = '<div class="stat-group"><div class="stat-group-title">📊 STATS</div>';
+                
+                Constants.stats.forEach(stat => {
+                    const value = totals[stat] || 0;
+                    const cap = Constants.statCap;
+                    const percentage = Math.min(100, (value / cap) * 100);
+                    
+                    let valueClass = 'normal';
+                    let fillClass = '';
+                    
+                    if (value >= cap) {
+                        valueClass = 'capped';
+                        fillClass = 'capped';
+                    }
+                    if (value > cap) {
+                        valueClass = 'overcap';
+                        fillClass = 'overcap';
+                    }
+                    
+                    html += `
+                        <div class="stat-row">
+                            <div class="stat-name">${stat}</div>
+                            <div class="stat-value ${valueClass}">${value}/${cap}</div>
+                            <div class="progress-bar">
+                                <div class="progress-fill ${fillClass}" style="width: ${percentage}%">
+                                    ${Math.round(percentage)}%
+                                </div>
+                            </div>
+                            <div class="stat-cap">${value > cap ? `+${value - cap} over` : value === cap ? 'CAPPED' : ''}</div>
+                        </div>
+                    `;
+                });
+                
+                html += '</div>';
+                
+                // Render skills sections
+                for (const [category, skills] of Object.entries(Constants.skills)) {
+                    const hasValues = skills.some(skill => totals[skill] > 0);
+                    if (!hasValues) continue;
+                    
+                    html += `<div class="stat-group"><div class="stat-group-title">⚔️ ${category.toUpperCase()}</div>`;
+                    
+                    skills.forEach(skill => {
+                        const value = totals[skill] || 0;
+                        if (value === 0) return;
+                        
+                        const cap = Constants.skillCap;
+                        const percentage = Math.min(100, (value / cap) * 100);
+                        
+                        let valueClass = 'normal';
+                        let fillClass = '';
+                        
+                        if (value >= cap) {
+                            valueClass = 'capped';
+                            fillClass = 'capped';
+                        }
+                        if (value > cap) {
+                            valueClass = 'overcap';
+                            fillClass = 'overcap';
+                        }
+                        
+                        html += `
+                            <div class="stat-row">
+                                <div class="stat-name">${skill}</div>
+                                <div class="stat-value ${valueClass}">${value}/${cap}</div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill ${fillClass}" style="width: ${percentage}%">
+                                        ${Math.round(percentage)}%
+                                    </div>
+                                </div>
+                                <div class="stat-cap">${value > cap ? `+${value - cap} over` : value === cap ? 'CAPPED' : ''}</div>
+                            </div>
+                        `;
+                    });
+                    
+                    html += '</div>';
+                }
+                
+                // Render resources section if any are enhanced
+                const hasResources = Constants.resources.some(resource => totals[resource] > 0);
+                if (hasResources) {
+                    html += `<div class="stat-group"><div class="stat-group-title">💎 RESOURCES</div>`;
+                    
+                    Constants.resources.forEach(resource => {
+                        const value = totals[resource] || 0;
+                        if (value === 0) return;
+                        
+                        const cap = Constants.resourceCaps[resource];
+                        const percentage = Math.min(100, (value / cap) * 100);
+                        
+                        let valueClass = 'normal';
+                        let fillClass = '';
+                        
+                        if (value >= cap) {
+                            valueClass = 'capped';
+                            fillClass = 'capped';
+                        }
+                        if (value > cap) {
+                            valueClass = 'overcap';
+                            fillClass = 'overcap';
+                        }
+                        
+                        html += `
+                            <div class="stat-row">
+                                <div class="stat-name">${resource}</div>
+                               <div class="stat-value ${valueClass}">${value}/${cap}</div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill ${fillClass}" style="width: ${percentage}%">
+                                        ${Math.round(percentage)}%
+                                    </div>
+                                </div>
+                                <div class="stat-cap">${value > cap ? `+${value - cap} over` : value === cap ? 'CAPPED' : ''}</div>
+                            </div>
+                        `;
+                    });
+                    
+                    html += '</div>';
+                }
+
+                container.innerHTML = html || '<div class="empty-state"><h3>No enhancives active</h3><p>Equip items to see your progress</p></div>';
+                
+                // Cap Analysis
+                const cappedStats = Constants.stats.filter(s => totals[s] >= Constants.statCap);
+                const overcappedStats = Constants.stats.filter(s => totals[s] > Constants.statCap);
+                const allSkills = Object.values(Constants.skills).flat();
+                const cappedSkills = allSkills.filter(s => totals[s] >= Constants.skillCap);
+                const overcappedSkills = allSkills.filter(s => totals[s] > Constants.skillCap);
+                
+                const totalWasted = [...overcappedStats, ...overcappedSkills].reduce((sum, target) => {
+                    const value = totals[target];
+                    const cap = Constants.stats.includes(target) ? Constants.statCap : Constants.skillCap;
+                    return sum + Math.max(0, value - cap);
+                }, 0);
+                
+                let analysisHtml = `
+                    <div class="summary-grid">
+                        <div class="summary-item">
+                            <span class="summary-target">Stats at Cap</span>
+                            <span class="summary-value" style="color: var(--success);">${cappedStats.length}/10</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-target">Skills at Cap</span>
+                            <span class="summary-value" style="color: var(--success);">${cappedSkills.length}</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-target">Total Wasted Points</span>
+                            <span class="summary-value" style="color: var(--danger);">${totalWasted}</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-target">Efficiency Score</span>
+                            <span class="summary-value">${totalWasted === 0 ? '100%' : Math.round((1 - totalWasted/100) * 100) + '%'}</span>
+                        </div>
+                    </div>
+                `;
+                
+                if (cappedStats.length > 0) {
+                    analysisHtml += '<div class="summary-title" style="margin-top: 20px;">Capped Stats</div>';
+                    analysisHtml += cappedStats.map(s => `<span class="enhancive-item">${s}</span>`).join('');
+                }
+                
+                if (cappedSkills.length > 0) {
+                    analysisHtml += '<div class="summary-title" style="margin-top: 20px;">Capped Skills</div>';
+                    analysisHtml += cappedSkills.map(s => `<span class="enhancive-item">${s}</span>`).join('');
+                }
+                
+                if (totalWasted > 0) {
+                    analysisHtml += '<div class="summary-title" style="margin-top: 20px; color: var(--danger);">⚠️ Overcapped Targets</div>';
+                    [...overcappedStats, ...overcappedSkills].forEach(target => {
+                        const value = totals[target];
+                        const cap = Constants.stats.includes(target) ? Constants.statCap : Constants.skillCap;
+                        const wasted = value - cap;
+                        analysisHtml += `<div class="summary-item">
+                            <span class="summary-target">${target}</span>
+                            <span class="summary-value" style="color: var(--danger);">+${wasted} wasted</span>
+                        </div>`;
+                    });
+                }
+                
+                analysisContainer.innerHTML = analysisHtml;
+                
+                // Update global stats
+                document.getElementById('cappedStats').textContent = cappedStats.length + cappedSkills.length;
+            };
+            
+            return {
+                refresh
+            };
+        })();
+            
+        // ==================== STATS MODULE ====================
+        const StatsModule = (() => {
+            const updateStats = () => {
+                const items = DataModule.getItems();
+                const equipment = DataModule.getEquipment();
+                
+                // Calculate statistics
+                document.getElementById('totalItems').textContent = items.length;
+                
+                // Count equipped items and slots
+                let equippedCount = 0;
+                let filledSlots = 0;
+                const uniqueEquippedItems = new Set();
+                
+                for (const slots of Object.values(equipment)) {
+                    for (const itemId of slots) {
+                        if (itemId) {
+                            filledSlots++;
+                            uniqueEquippedItems.add(itemId);
+                        }
+                    }
+                }
+                equippedCount = uniqueEquippedItems.size;
+                
+                document.getElementById('totalEquipped').textContent = equippedCount;
+                document.getElementById('filledSlots').textContent = `${filledSlots}/57`;
+                
+                // Count active enhancives
+                let activeEnhancives = 0;
+                uniqueEquippedItems.forEach(itemId => {
+                    const item = items.find(i => i.id === itemId);
+                    if (item) {
+                        activeEnhancives += item.targets.length;
+                    }
+                });
+                
+                document.getElementById('totalEnhancives').textContent = activeEnhancives;
+                
+                // Capped stats calculation is now done in TotalsModule
+            };
+            
+            return {
+                updateStats
+            };
+        })();
+        
+        // ==================== ANALYSIS MODULE ====================
+        const AnalysisModule = (() => {
+            const refresh = () => {
+                const container = document.getElementById('analysis-tab').querySelector('.panel');
+                
+                container.innerHTML = `
+                    <h2 class="section-title">Analysis & Optimization</h2>
+                    <div class="stat-group">
+                        <div class="stat-group-title">🎯 Quick Actions</div>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                            <button class="btn btn-primary" onclick="AnalysisModule.findBestItems()">Find Best Items</button>
+                            <button class="btn btn-primary" onclick="AnalysisModule.findBestItemsOverall(true)">Best Items (All)</button>
+                            <button class="btn btn-primary" onclick="AnalysisModule.findBestItemsOverall(false)">Best Items (Unequipped)</button>
+                            <button class="btn btn-primary" onclick="AnalysisModule.showDuplicates()">Show Duplicate Slots</button>
+                            <button class="btn btn-primary" onclick="AnalysisModule.optimizeLoadout()">Optimize Loadout</button>
+                            <button class="btn btn-primary" onclick="AnalysisModule.exportLoadout()">Export Current Loadout</button>
+                        </div>
+                    </div>
+                    <div id="analysisResults" style="margin-top: 30px;"></div>
+                `;
+            };
+            
+            const findBestItems = () => {
+                const items = DataModule.getItems();
+                const resultsContainer = document.getElementById('analysisResults');
+                
+                // Group items by location
+                const itemsByLocation = {};
+                items.forEach(item => {
+                    if (!itemsByLocation[item.location]) {
+                        itemsByLocation[item.location] = [];
+                    }
+                    itemsByLocation[item.location].push(item);
+                });
+                
+                // Find best item per location (highest total enhancive value)
+                let html = '<div class="stat-group-title">🏆 Best Items by Location</div>';
+                
+                Object.entries(itemsByLocation).forEach(([location, locationItems]) => {
+                    // Calculate total value for each item
+                    const itemsWithValue = locationItems.map(item => {
+                        const totalValue = item.targets.reduce((sum, t) => sum + t.amount, 0);
+                        return { ...item, totalValue };
+                    });
+                    
+                    // Sort by total value
+                    itemsWithValue.sort((a, b) => b.totalValue - a.totalValue);
+                    const best = itemsWithValue[0];
+                    
+                    html += `
+                        <div class="summary-item" style="margin: 10px 0;">
+                            <span class="summary-target"><strong>${location}:</strong> ${best.name}</span>
+                            <span class="summary-value">Total: +${best.totalValue}</span>
+                        </div>
+                        <div style="margin-left: 20px; margin-bottom: 15px;">
+                            ${best.targets.map(t => `<span class="enhancive-item">${t.target} +${t.amount}</span>`).join('')}
+                        </div>
+                    `;
+                });
+                
+                resultsContainer.innerHTML = html;
+            };
+
+            const findBestItemsOverall = (includeEquipped = true) => {
+                const items = DataModule.getItems();
+                const equipment = DataModule.getEquipment();
+                const resultsContainer = document.getElementById('analysisResults');
+                
+                // Get all equipped item IDs
+                const equippedIds = new Set();
+                Object.values(equipment).forEach(slots => {
+                    slots.forEach(id => {
+                        if (id) equippedIds.add(id);
+                    });
+                });
+                
+                // Filter items based on includeEquipped
+                let filteredItems = includeEquipped ? items : items.filter(item => !equippedIds.has(item.id));
+                
+                // Calculate total bonus for each item
+                const itemsWithBonus = filteredItems.map(item => {
+                    const totalBonus = item.targets.reduce((sum, t) => {
+                        let value = t.amount;
+                        if (Constants.stats.includes(t.target) && t.type === 'Bonus') {
+                            value = t.amount * 2;
+                        }
+                        return sum + value;
+                    }, 0);
+                    return { ...item, totalBonus };
+                }).sort((a, b) => b.totalBonus - a.totalBonus);
+                
+                let html = `<div class="stat-group-title">🏆 Best Items Overall ${includeEquipped ? '(All)' : '(Unequipped Only)'}</div>`;
+                
+                itemsWithBonus.slice(0, 20).forEach(item => {
+                    const isEquipped = equippedIds.has(item.id);
+                    html += `
+                        <div class="summary-item" style="margin: 10px 0;">
+                            <span class="summary-target">
+                                <strong>(${item.totalBonus}) ${item.name}</strong> 
+                                [${item.location}] 
+                                ${isEquipped ? '<span style="color: var(--success);">✓ Equipped</span>' : ''}
+                            </span>
+                        </div>
+                        <div style="margin-left: 20px; margin-bottom: 15px;">
+                            ${item.targets.map(t => `<span class="enhancive-item">${t.target} +${t.amount} ${t.type}</span>`).join('')}
+                        </div>
+                    `;
+                });
+                
+                resultsContainer.innerHTML = html;
+            };
+            
+            const showDuplicates = () => {
+                const items = DataModule.getItems();
+                const resultsContainer = document.getElementById('analysisResults');
+                
+                // Find items with same location
+                const locationCounts = {};
+                items.forEach(item => {
+                    locationCounts[item.location] = (locationCounts[item.location] || 0) + 1;
+                });
+                
+                const duplicates = Object.entries(locationCounts)
+                    .filter(([loc, count]) => count > 1)
+                    .sort((a, b) => b[1] - a[1]);
+                
+                if (duplicates.length === 0) {
+                    resultsContainer.innerHTML = '<div class="empty-state"><h3>No duplicate locations found</h3></div>';
+                    return;
+                }
+                
+                let html = '<div class="stat-group-title">📋 Items with Same Location</div>';
+                
+                duplicates.forEach(([location, count]) => {
+                    const locationItems = items.filter(i => i.location === location);
+                    // Calculate total bonus and sort
+                    const itemsWithBonus = locationItems.map(item => {
+                        const totalBonus = item.targets.reduce((sum, t) => {
+                            let value = t.amount;
+                            if (Constants.stats.includes(t.target) && t.type === 'Bonus') {
+                                value = t.amount * 2;
+                            }
+                            return sum + value;
+                        }, 0);
+                        return { ...item, totalBonus };
+                    }).sort((a, b) => b.totalBonus - a.totalBonus);
+
+                    html += `
+                        <div style="margin: 20px 0;">
+                            <div class="summary-item">
+                                <span class="summary-target"><strong>${location}</strong></span>
+                                <span class="summary-value">${count} items</span>
+                            </div>
+                            <div style="margin: 10px 0 0 20px;">
+                                ${itemsWithBonus.map(item => `
+                                    <div style="padding: 5px; margin: 5px 0; background: #f8f9fa; border-radius: 5px;">
+                                        <strong>(${item.totalBonus}) ${item.name}</strong> - 
+                                        ${item.targets.map(t => `${t.target} +${t.amount} ${t.type}`).join(', ')}
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                resultsContainer.innerHTML = html;
+            };
+            
+            const optimizeLoadout = () => {
+                const resultsContainer = document.getElementById('analysisResults');
+                resultsContainer.innerHTML = `
+                    <div class="stat-group-title">🔧 Loadout Optimization</div>
+                    <div class="empty-state">
+                        <h3>Advanced optimization coming soon!</h3>
+                        <p>This will analyze all possible combinations to maximize your enhancives while avoiding cap waste.</p>
+                    </div>
+                `;
+            };
+            
+            const exportLoadout = () => {
+                const equipment = DataModule.getEquipment();
+                const items = DataModule.getItems();
+                const resultsContainer = document.getElementById('analysisResults');
+                
+                let loadoutText = "=== CURRENT LOADOUT ===\n\n";
+                
+                for (const [location, slots] of Object.entries(equipment)) {
+                    slots.forEach((itemId, index) => {
+                        if (itemId) {
+                            const item = items.find(i => i.id === itemId);
+                            if (item) {
+                                const slotNum = slots.length > 1 ? ` (Slot ${index + 1})` : '';
+                                loadoutText += `${location}${slotNum}: ${item.name}\n`;
+                                item.targets.forEach(t => {
+                                    loadoutText += `  - ${t.target} +${t.amount} ${t.type}\n`;
+                                });
+                            }
+                        }
+                    });
+                }
+                
+                // Create download
+                const blob = new Blob([loadoutText], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `loadout_${new Date().toISOString().split('T')[0]}.txt`;
+                a.click();
+                
+                resultsContainer.innerHTML = `
+                    <div class="stat-group-title">✅ Loadout Exported</div>
+                    <div style="padding: 20px; background: #f8f9fa; border-radius: 8px;">
+                        <p>Your current loadout has been exported as a text file.</p>
+                    </div>
+                `;
+            };
+            
+            return {
+                refresh,
+                findBestItems,
+                findBestItemsOverall,
+                showDuplicates,
+                optimizeLoadout,
+                exportLoadout
+            };
+        })();
+        
+        // ==================== SETTINGS MODULE ====================
+        const SettingsModule = (() => {
+            const refresh = () => {
+                const container = document.getElementById('settings-tab').querySelector('.panel');
+                
+                container.innerHTML = `
+                    <h2 class="section-title">Settings & Data Management</h2>
+                    
+                    <div class="stat-group">
+                        <div class="stat-group-title">💾 Data Management</div>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                            <button class="btn btn-primary" onclick="DataModule.exportData()">📤 Export All Data</button>
+                            <button class="btn btn-primary" onclick="DataModule.importData()">📥 Import Data</button>
+                            <button class="btn btn-danger" onclick="SettingsModule.clearData()">🗑️ Clear All Data</button>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-group" style="margin-top: 30px;">
+                        <div class="stat-group-title">📊 Statistics</div>
+                        <div class="summary-grid">
+                            <div class="summary-item">
+                                <span class="summary-target">Total Items</span>
+                                <span class="summary-value">${DataModule.getItems().length}</span>
+                            </div>
+                            <div class="summary-item">
+                                <span class="summary-target">Data Size</span>
+                                <span class="summary-value">${(JSON.stringify(DataModule.getItems()).length / 1024).toFixed(2)} KB</span>
+                            </div>
+                            <div class="summary-item">
+                                <span class="summary-target">Last Backup</span>
+                                <span class="summary-value">Never</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-group" style="margin-top: 30px;">
+                        <div class="stat-group-title">⚙️ Preferences</div>
+                        <div style="padding: 20px; background: #f8f9fa; border-radius: 8px;">
+                            <p>Additional settings and preferences coming soon!</p>
+                        </div>
+                    </div>
+                `;
+            };
+            
+            const clearData = () => {
+                if (confirm('⚠️ WARNING: This will delete ALL your items and equipment data. This cannot be undone!\n\nAre you sure you want to continue?')) {
+                    if (confirm('This is your last chance! All data will be permanently deleted. Continue?')) {
+                        localStorage.clear();
+                        location.reload();
+                    }
+                }
+            };
+            
+            return {
+                refresh,
+                clearData
+            };
+        })();
+        
+        // ==================== INITIALIZATION ====================
+        document.addEventListener('DOMContentLoaded', () => {
+            DataModule.init();
+            ItemsModule.init();
+            EquipmentModule.init();
+            StatsModule.updateStats();
+            
+            // Add refresh handlers for other tabs
+            const analysisTab = document.querySelector('[onclick*="analysis"]');
+            if (analysisTab) {
+                analysisTab.addEventListener('click', () => {
+                    AnalysisModule.refresh();
+                });
+            }
+            
+            const settingsTab = document.querySelector('[onclick*="settings"]');
+            if (settingsTab) {
+                settingsTab.addEventListener('click', () => {
+                    SettingsModule.refresh();
+                });
+            }
+        });
+    </script>
+</body>
+</html>

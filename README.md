@@ -163,6 +163,6 @@ enhancives/
 ### Want to use Supabase later
 - Just create the `.env` file with your credentials
 - Restart the server
-- Data will automatically switch to Supabase
+- Data will automatically switch to Supabaseterm
 
 The application now works immediately for testing and can be upgraded to full functionality when you're ready!

@@ -1,273 +1,261 @@
-// Data management for GitHub Pages version (localStorage only)
-const DataManager = {
-    items: [],
-    equipment: {},
-    currentUser: null,
-    nextId: 1,
+// ==================== DATA MODULE ====================
+const DataModule = (() => {
+    // Private data
+    let items = [];
+    let equipment = {};
+    let nextId = 1;
     
-    // Initialize data manager
-    init() {
-        this.initializeEquipmentSlots();
-        this.loadFromStorage();
-        console.log('Data manager initialized');
-    },
-
-    // Initialize equipment with proper slot structure
-    initializeEquipmentSlots() {
-        for (const [location, count] of Object.entries(wearLocations)) {
-            this.equipment[location] = Array(count).fill(null);
+    // Initialize equipment slots from Constants
+    const initializeEquipment = () => {
+        for (const [location, count] of Object.entries(Constants.wearLocations)) {
+            equipment[location] = Array(count).fill(null);
         }
-    },
+    };
 
-    // Load data from local storage
-    loadFromStorage() {
+    // Load data from localStorage
+    const loadData = () => {
         try {
-            const savedData = localStorage.getItem('enhanciveTrackerData');
-            if (savedData) {
-                const data = JSON.parse(savedData);
-                this.items = data.items || [];
-                // Set nextId based on existing items
-                if (this.items.length > 0) {
-                    this.nextId = Math.max(...this.items.map(i => i.id)) + 1;
-                }
-                // Merge saved equipment with initialized structure
-                if (data.equipment) {
-                    for (const [location, slots] of Object.entries(data.equipment)) {
-                        if (this.equipment[location]) {
-                            this.equipment[location] = slots;
-                        }
+            const savedItems = localStorage.getItem('enhanciveItems');
+            const savedEquipment = localStorage.getItem('enhanciveEquipment');
+            
+            if (savedItems) {
+                items = JSON.parse(savedItems);
+                nextId = items.length > 0 ? Math.max(...items.map(i => i.id)) + 1 : 1;
+            }
+            
+            if (savedEquipment) {
+                const saved = JSON.parse(savedEquipment);
+                // Merge with initialized structure to ensure all slots exist
+                for (const [location, slots] of Object.entries(saved)) {
+                    if (equipment[location]) {
+                        equipment[location] = slots;
                     }
                 }
             }
         } catch (error) {
-            console.error('Error loading data:', error);
-            this.items = [];
-            this.nextId = 1;
-            this.initializeEquipmentSlots();
+            console.warn('LocalStorage not available or corrupted, using in-memory storage');
+            items = [];
+            nextId = 1;
+            initializeEquipment();
         }
-    },
+    };
     
     // Save data to localStorage
-    saveToStorage() {
+    const saveData = () => {
         try {
-            const data = {
-                items: this.items,
-                equipment: this.equipment,
-                version: '2.0'
-            };
-            localStorage.setItem('enhanciveTrackerData', JSON.stringify(data));
+            localStorage.setItem('enhanciveItems', JSON.stringify(items));
+            localStorage.setItem('enhanciveEquipment', JSON.stringify(equipment));
         } catch (error) {
-            console.error('Error saving data:', error);
+            console.warn('Unable to save to localStorage:', error);
         }
-    },
+    };
     
-    // Add new item
-    addItem(itemData) {
-        const item = {
-            id: this.nextId++,
-            ...itemData,
-            dateAdded: new Date().toISOString()
-        };
-        this.items.push(item);
-        this.saveToStorage();
-        return item;
-    },
-    
-    // Edit existing item
-    editItem(id, updates) {
-        const itemIndex = this.items.findIndex(i => i.id === parseInt(id));
-        if (itemIndex !== -1) {
-            this.items[itemIndex] = { 
-                ...this.items[itemIndex], 
-                ...updates,
-                dateModified: new Date().toISOString()
+    // Public API
+    return {
+        init: () => {
+            initializeEquipment();
+            loadData();
+        },
+        
+        getItems: () => [...items],
+        getItem: (id) => items.find(i => i.id === id),
+        getEquipment: () => ({...equipment}),
+        getWearLocations: () => ({...Constants.wearLocations}),
+        
+        addItem: (itemData) => {
+            const item = {
+                id: nextId++,
+                ...itemData,
+                dateAdded: new Date().toISOString()
             };
-            this.saveToStorage();
-            return this.items[itemIndex];
-        }
-        return null;
-    },
-    
-    // Delete item
-    deleteItem(id) {
-        const itemId = parseInt(id);
-        // Remove from items array
-        this.items = this.items.filter(i => i.id !== itemId);
+            items.push(item);
+            saveData();
+            return item;
+        },
         
-        // Remove from all equipment slots
-        for (const location in this.equipment) {
-            this.equipment[location] = this.equipment[location].map(slot => 
-                slot === itemId ? null : slot
-            );
-        }
-        
-        this.saveToStorage();
-        return true;
-    },
-    
-    // Update equipment slots based on worn items
-    updateEquipmentFromItems() {
-        // Reset all slots
-        EQUIPMENT_SLOTS.forEach(slot => {
-            this.equipment[slot] = null;
-        });
-        
-        // Fill slots with worn items
-        this.items.filter(item => item.location === 'Worn').forEach(item => {
-            if (item.slot && EQUIPMENT_SLOTS.includes(item.slot)) {
-                this.equipment[item.slot] = item;
+        editItem: (id, updates) => {
+            const itemIndex = items.findIndex(i => i.id === id);
+            if (itemIndex !== -1) {
+                items[itemIndex] = { 
+                    ...items[itemIndex], 
+                    ...updates,
+                    dateModified: new Date().toISOString()
+                };
+                saveData();
+                return items[itemIndex];
             }
-        });
-        
-        this.saveToStorage();
-    },
-    
-    // Get equipped items
-    getEquippedItems() {
-        const equippedIds = new Set();
-        for (const slots of Object.values(this.equipment)) {
-            for (const itemId of slots) {
-                if (itemId) {
-                    equippedIds.add(itemId);
-                }
-            }
-        }
-        
-        return this.items.filter(item => equippedIds.has(item.id));
-    },
-    
-    // Calculate total enhancements
-    calculateTotalEnhancements() {
-        const totals = {};
-        
-        for (const slots of Object.values(this.equipment)) {
-            for (const itemId of slots) {
-                if (itemId) {
-                    const item = this.items.find(i => i.id === itemId);
-                    if (item && item.targets) {
-                        item.targets.forEach(t => {
-                            let amount = t.amount;
-                            
-                            // For stats: Base = +1 per point, Bonus = +2 per point
-                            if (stats.includes(t.target)) {
-                                if (t.type === 'Base') {
-                                    amount = t.amount * 1;
-                                } else if (t.type === 'Bonus') {
-                                    amount = t.amount * 2;
-                                }
-                            } 
-                            // For skills: Both Bonus and Ranks count as +1
-                            else if (t.type === 'Ranks' || t.type === 'Bonus') {
-                                amount = t.amount * 1;
-                            }
-                            
-                            totals[t.target] = (totals[t.target] || 0) + amount;
-                        });
-                    }
-                }
-            }
-        }
-        
-        return totals;
-    },
-    
-    // Export data to JSON file
-    exportData() {
-        const data = {
-            items: this.items,
-            equipment: this.equipment,
-            exportDate: new Date().toISOString(),
-            version: '2.0'
-        };
-        
-        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `enhancive-tracker-${new Date().toISOString().split('T')[0]}.json`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-        
-        UI.showNotification('Data exported successfully', 'success');
-    },
-    
-    // Handle file import
-    importData() {
-        const input = document.createElement('input');
-        input.type = 'file';
-        input.accept = '.json';
-        
-        input.onchange = (e) => {
-            const file = e.target.files[0];
-            const reader = new FileReader();
+            return null;
+        },
+
+        deleteItem: (id) => {
+            // Remove from items
+            items = items.filter(i => i.id !== id);
             
-            reader.onload = (event) => {
-                try {
-                    const data = JSON.parse(event.target.result);
-                    
-                    // Validate data structure
-                    if (!data.items || !Array.isArray(data.items)) {
-                        throw new Error('Invalid data format');
+            // Remove from equipment
+            for (const location in equipment) {
+                equipment[location] = equipment[location].map(slot => 
+                    slot === id ? null : slot
+                );
+            }
+            
+            saveData();
+        },
+        
+        equipItem: (itemId, location, slotIndex) => {
+            // Unequip from any other slot first
+            for (const loc in equipment) {
+                equipment[loc] = equipment[loc].map(slot => 
+                    slot === itemId ? null : slot
+                );
+            }
+            
+            // Equip in new slot
+            if (itemId && location && slotIndex !== undefined) {
+                equipment[location][slotIndex] = itemId;
+            }
+            
+            saveData();
+        },
+        
+        unequipItem: (location, slotIndex) => {
+            equipment[location][slotIndex] = null;
+            saveData();
+        },
+
+        getEquippedItems: () => {
+            const equippedIds = new Set();
+            for (const slots of Object.values(equipment)) {
+                for (const itemId of slots) {
+                    if (itemId) {
+                        equippedIds.add(itemId);
                     }
-                    
-                    // Import the data
-                    this.items = data.items;
-                    
-                    // Update nextId
-                    if (this.items.length > 0) {
-                        this.nextId = Math.max(...this.items.map(i => i.id)) + 1;
-                    } else {
-                        this.nextId = 1;
-                    }
-                    
-                    // Import equipment
-                    if (data.equipment) {
-                        // Reset equipment first
-                        this.initializeEquipmentSlots();
-                        // Then apply imported data
-                        for (const [location, slots] of Object.entries(data.equipment)) {
-                            if (this.equipment[location]) {
-                                this.equipment[location] = slots;
-                            }
+                }
+            }
+            
+            return items.filter(item => equippedIds.has(item.id));
+        },
+
+        calculateTotalEnhancements: () => {
+            const totals = {};
+            
+            for (const slots of Object.values(equipment)) {
+                for (const itemId of slots) {
+                    if (itemId) {
+                        const item = items.find(i => i.id === itemId);
+                        if (item && item.targets) {
+                            item.targets.forEach(t => {
+                                let amount = t.amount;
+                                
+                                // For stats: Base = +1 per point, Bonus = +2 per point
+                                if (Constants.stats.includes(t.target)) {
+                                    if (t.type === 'Base') {
+                                        amount = t.amount * 1;
+                                    } else if (t.type === 'Bonus') {
+                                        amount = t.amount * 2;
+                                    }
+                                } 
+                                // For skills: Both Bonus and Ranks count as +1
+                                else if (t.type === 'Ranks' || t.type === 'Bonus') {
+                                    amount = t.amount * 1;
+                                }
+                                
+                                totals[t.target] = (totals[t.target] || 0) + amount;
+                            });
                         }
                     }
-                    
-                    this.saveToStorage();
-                    
-                    // Refresh all displays
-                    if (ItemsModule.refresh) ItemsModule.refresh();
-                    if (EquipmentModule.refresh) EquipmentModule.refresh();
-                    if (App.updateStatistics) App.updateStatistics();
-                    if (TotalsModule.refresh) TotalsModule.refresh();
-                    
-                    UI.showNotification('Data imported successfully', 'success');
-                } catch (error) {
-                    console.error('Import failed:', error);
-                    UI.showNotification('Failed to import data: ' + error.message, 'error');
                 }
+            }
+            
+            return totals;
+        },
+        
+        exportData: () => {
+            const data = { 
+                items, 
+                equipment, 
+                version: "1.0",
+                exportDate: new Date().toISOString()
+            };
+            const dataStr = JSON.stringify(data, null, 2);
+            const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+            const filename = `enhancive_backup_${new Date().toISOString().split('T')[0]}.json`;
+            
+            const link = document.createElement('a');
+            link.setAttribute('href', dataUri);
+            link.setAttribute('download', filename);
+            link.click();
+            
+            UI.showNotification('Data exported successfully!');
+        },
+        
+        importData: () => {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            
+            input.onchange = e => {
+                const file = e.target.files[0];
+                const reader = new FileReader();
+                
+                reader.onload = event => {
+                    try {
+                        const data = JSON.parse(event.target.result);
+                        items = data.items || [];
+                        
+                        // Update nextId
+                        nextId = items.length > 0 ? Math.max(...items.map(i => i.id)) + 1 : 1;
+                        
+                        // Import equipment, merging with current structure
+                        if (data.equipment) {
+                            initializeEquipment(); // Reset first
+                            for (const [location, slots] of Object.entries(data.equipment)) {
+                                if (equipment[location]) {
+                                    equipment[location] = slots;
+                                }
+                            }
+                        }
+                        
+                        saveData();
+                        
+                        // Refresh all displays
+                        ItemsModule.refresh();
+                        EquipmentModule.refresh();
+                        StatsModule.updateStats();
+                        TotalsModule.refresh();
+                        
+                        UI.showNotification('Data imported successfully!');
+                    } catch (error) {
+                        UI.showNotification('Error importing data', 'error');
+                        console.error('Import error:', error);
+                    }
+                };
+                
+                reader.readAsText(file);
             };
             
-            reader.readAsText(file);
-        };
-        
-        input.click();
-    },
-    
-    // Clear all data
-    clearAllData() {
-        if (confirm('Are you sure you want to clear all data? This cannot be undone!')) {
-            this.items = [];
-            this.nextId = 1;
-            this.initializeEquipmentSlots();
-            this.saveToStorage();
-            
-            if (ItemsModule.refresh) ItemsModule.refresh();
-            if (EquipmentModule.refresh) EquipmentModule.refresh();
-            if (App.updateStatistics) App.updateStatistics();
-            
-            UI.showNotification('All data cleared', 'info');
+            input.click();
+        },
+
+        clearAllData: () => {
+            if (confirm('⚠️ WARNING: This will delete ALL your items and equipment data. This cannot be undone!\n\nAre you sure you want to continue?')) {
+                if (confirm('This is your last chance! All data will be permanently deleted. Continue?')) {
+                    items = [];
+                    nextId = 1;
+                    initializeEquipment();
+                    saveData();
+                    
+                    // Refresh all displays
+                    if (typeof ItemsModule !== 'undefined' && ItemsModule.refresh) ItemsModule.refresh();
+                    if (typeof EquipmentModule !== 'undefined' && EquipmentModule.refresh) EquipmentModule.refresh();
+                    if (typeof StatsModule !== 'undefined' && StatsModule.updateStats) StatsModule.updateStats();
+                    if (typeof TotalsModule !== 'undefined' && TotalsModule.refresh) TotalsModule.refresh();
+                    
+                    UI.showNotification('All data cleared');
+                }
+            }
         }
-    }
-};
+    };
+})();
+
+// Legacy compatibility - expose DataModule as DataManager
+const DataManager = DataModule;
